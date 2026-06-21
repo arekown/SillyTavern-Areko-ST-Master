@@ -6,7 +6,7 @@
     "js": "dist/index.js",
     "css": "dist/style.css",
     "author": "areko",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "homePage": "https://github.com/arekown/SillyTavern-Areko-ST-Master",
     "generate_interceptor": "arekoTrackerInterceptor"
 }
