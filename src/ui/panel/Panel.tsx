@@ -4,6 +4,8 @@ import { settingsManager } from '../../core/settings-manager';
 import { getLatestTracker, getPlayerName } from '../../core/tracker-store';
 import { renderGeneral, renderCharacters } from '../../core/render-html';
 import { getCharImage, generateCharImage, setCharImage, deleteCharImage } from '../../features/image-gen';
+import { generateLorebookEntry, lorebookEntryExists } from '../../features/lorebook';
+import { loreExists } from '../../core/render-html';
 import { t } from '../../i18n';
 
 type TabKey = 'general' | 'player' | 'npc';
@@ -12,6 +14,7 @@ export const Panel: FC = () => {
   const [tab, setTab] = useState<TabKey>('general');
   const [, setTick] = useState(0);
   const [busyImg, setBusyImg] = useState<string | null>(null);
+  const [busyLore, setBusyLore] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const pendingName = useRef('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -57,6 +60,28 @@ export const Panel: FC = () => {
   else if (tab === 'player') html = renderCharacters(cats, data, 'player', player, { imageOf: getCharImage });
   else html = renderCharacters(cats, data, 'npc', player, { imageOf: getCharImage });
 
+  const charNames = useRef<string[]>([]);
+  useEffect(() => {
+    const names = new Set<string>();
+    for (const cat of cats) {
+      if (cat.scope !== 'perCharacter') continue;
+      const arr = (data as any)?.[cat.id ? undefined as any : undefined as any];
+    }
+    // Namen aus den gerenderten Karten lesen
+    contentRef.current?.querySelectorAll('[data-areko-action="lorebook"]').forEach((b) => {
+      const nm = b.getAttribute('data-areko-name'); if (nm) names.add(nm);
+    });
+    let cancelled = false;
+    (async () => {
+      let changed = false;
+      for (const nm of names) {
+        try { const ex = await lorebookEntryExists(nm); if (loreExists[nm] !== ex) { loreExists[nm] = ex; changed = true; } } catch {}
+      }
+      if (!cancelled && changed) refresh();
+    })();
+    return () => { cancelled = true; };
+  });
+
   useLayoutEffect(() => {
     const el = contentRef.current;
     if (!el) return;
@@ -74,6 +99,18 @@ export const Panel: FC = () => {
     if (!btn) return;
     const action = btn.getAttribute('data-areko-action');
     const name = btn.getAttribute('data-areko-name') || '';
+    if (action === 'lorehelp') { window.alert(t('lore.helpLong')); return; }
+    if (action === 'lorebook') {
+      if (busyLore) return;
+      setBusyLore(name);
+      try {
+        await generateLorebookEntry(name);
+        loreExists[name] = true;
+        window.alert(t('lore.done'));
+      } catch (err: any) { window.alert('Lorebook-Fehler: ' + (err?.message ?? String(err))); }
+      finally { setBusyLore(null); refresh(); }
+      return;
+    }
     if (action === 'genimg') {
       if (busyImg) return;
       setBusyImg(name);
@@ -107,6 +144,7 @@ export const Panel: FC = () => {
         </div>
         <div className="areko-panel__content" onClick={onContentClick} ref={contentRef}>
           {busyImg && <div className="areko-imgbusy">{t('panel.img.busy')} ({busyImg})</div>}
+          {busyLore && <div className="areko-imgbusy">{t('lore.busy')} ({busyLore})</div>}
           <div dangerouslySetInnerHTML={{ __html: html }} />
         </div>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFile} />

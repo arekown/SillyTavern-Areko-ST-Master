@@ -2,6 +2,9 @@ import { Category, FieldDef } from '../config/types';
 import { categoryKey } from './schema-builder';
 import { t } from '../i18n';
 
+// Vom Panel gepflegter Cache: Charaktername -> hat bereits einen Lorebook-Eintrag
+export const loreExists: Record<string, boolean> = {};
+
 function esc(s: any): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -67,6 +70,13 @@ function actionButtons(name: string): string {
     `</div>` +
     `<div class="areko-charactions__row">` +
       `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
+    `</div>` +
+    `<div class="areko-charactions__row areko-lorerow">` +
+      `<span class="areko-lorebtn" data-areko-action="lorebook" data-areko-name="${n}" title="${esc(t('lore.help'))}">` +
+        `<i class="fa-solid ${loreExists[name] ? 'fa-book-bookmark' : 'fa-book-medical'}"></i> ` +
+        `${esc(loreExists[name] ? t('lore.update') : t('lore.create'))}` +
+        `<span class="areko-help" data-areko-action="lorehelp" title="${esc(t('lore.help'))}">?</span>` +
+      `</span>` +
     `</div>` +
   `</div>`;
 }

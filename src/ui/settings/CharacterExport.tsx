@@ -36,7 +36,7 @@ export const CharacterExport: FC = () => {
     <div className="areko-charexport">
       <div className="areko-section-title">{t('export2.heading')}</div>
       <div className="areko-field">
-        <label>{t('export2.lorebookFields')}</label>
+        <label>{t('export2.lorebookFields')} <span className="areko-help" title={t('lore.helpLong')}>?</span></label>
         <div className="areko-checklist">
           {flat.length === 0 && <div className="areko-hint">{t('builder.empty')}</div>}
           {flat.map((f) => (

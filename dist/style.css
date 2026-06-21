@@ -801,3 +801,40 @@
   background: rgba(255, 255, 255, 0.05);
   cursor: default;
 }
+
+/* ---------- Lorebook-Button + Hilfe ---------- */
+.areko-lorerow {
+  margin-top: 2px;
+}
+
+.areko-lorebtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15));
+}
+.areko-lorebtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.areko-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: help;
+  opacity: 0.7;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.25));
+}
+.areko-help:hover {
+  opacity: 1;
+}

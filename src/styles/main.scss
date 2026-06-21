@@ -157,3 +157,19 @@
 .areko-charactions__row { display: flex; gap: 6px; }
 .areko-charimg { width: auto; height: auto; flex: 1 1 auto; max-width: 200px; max-height: 220px; object-fit: cover; border-radius: 8px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15)); cursor: zoom-in; }
 .areko-charimg--empty { width: 120px; height: 120px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; opacity: 0.5; background: rgba(255, 255, 255, 0.05); cursor: default; }
+
+/* ---------- Lorebook-Button + Hilfe ---------- */
+.areko-lorerow { margin-top: 2px; }
+.areko-lorebtn {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 0.8rem; padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15));
+  &:hover { background: rgba(255,255,255,0.08); }
+}
+.areko-help {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; margin-left: 4px; border-radius: 50%;
+  font-size: 0.7rem; font-weight: 700; cursor: help; opacity: 0.7;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.25));
+  &:hover { opacity: 1; }
+}

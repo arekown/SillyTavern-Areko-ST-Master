@@ -125,4 +125,12 @@ export const STRINGS: Record<string, Entry> = {
   'panel.img.delete': { de: 'Bild löschen', en: 'Delete image' },
   'panel.img.none': { de: 'kein Bild', en: 'no image' },
   'panel.img.busy': { de: 'Erzeuge Bild…', en: 'Generating image…' },
+  'lore.create': { de: 'Zu Lorebook hinzufügen', en: 'Add to lorebook' },
+  'lore.update': { de: 'Lorebook aktualisieren', en: 'Update lorebook' },
+  'lore.busy': { de: 'Erstelle Lorebook-Eintrag…', en: 'Writing lorebook entry…' },
+  'lore.done': { de: 'Lorebook-Eintrag gespeichert (chat-gebundenes Lorebook).', en: 'Lorebook entry saved (chat-bound lorebook).' },
+  'lore.help': { de: 'Schreibt per LLM einen Lorebook-Eintrag für diesen Charakter ins chat-gebundene Lorebook.', en: 'Uses the LLM to write a lorebook entry for this character into the chat-bound lorebook.' },
+  'lore.helpLong': { de: 'Das LLM verfasst aus den angehakten Feldern UND der bisherigen Geschichte des Charakters einen hochwertigen, zeitlosen Lorebook-Eintrag. Er landet im CHAT-GEBUNDENEN Lorebook (gilt nur für diesen Chat). Trigger-Keywords (Name + vom LLM ergänzte, z. B. Spitznamen, Familien-/Gruppenrolle, markante Orte) werden automatisch generiert. Existiert bereits ein Eintrag, wird er fortgeschrieben statt neu geschrieben — der Button wechselt dann auf „Lorebook aktualisieren". In der Layout-Auswahl legst du fest, welche Felder einfließen.', en: 'The LLM writes a high-quality, timeless lorebook entry from the checked fields AND the character\'s history so far. It is stored in the CHAT-BOUND lorebook (this chat only). Trigger keywords (name + LLM-generated ones such as nicknames, family/group role, distinctive places) are created automatically. If an entry already exists it is extended instead of rewritten — the button then switches to "Update lorebook". The Layout selection controls which fields are included.' },
+  'prompts.lore': { de: 'Lorebook-Prompt', en: 'Lorebook prompt' },
+  'prompts.lore.hint': { de: 'Platzhalter: {{name}}, {{language}}.', en: 'Placeholders: {{name}}, {{language}}.' },
 };
