@@ -4,11 +4,7 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { Category, FieldDef, ExtensionSettings } from '../../config/types';
 import { t } from '../../i18n';
 
-interface FlatField {
-  id: string;
-  label: string;
-}
-
+interface FlatField { id: string; label: string; }
 function flatten(categories: Category[]): FlatField[] {
   const out: FlatField[] = [];
   const walk = (fields: FieldDef[], prefix: string) => {
@@ -26,47 +22,18 @@ export const CharacterExport: FC = () => {
   const forceUpdate = useForceUpdate();
   const settings = settingsManager.getSettings();
   const preset = settings.presets[settings.activePreset];
-
-  const update = (fn: (s: ExtensionSettings) => void) => {
-    const s = settingsManager.getSettings();
-    fn(s);
-    settingsManager.saveSettings();
-    forceUpdate();
-  };
-
+  const update = (fn: (s: ExtensionSettings) => void) => { const s = settingsManager.getSettings(); fn(s); settingsManager.saveSettings(); forceUpdate(); };
   if (!preset) return null;
   const flat = flatten(preset.categories);
   const lore = settings.lorebookExport.enabledFieldIds;
-
-  const toggleLore = (id: string, on: boolean) =>
-    update((s) => {
-      const set = new Set(s.lorebookExport.enabledFieldIds);
-      if (on) set.add(id);
-      else set.delete(id);
-      s.lorebookExport.enabledFieldIds = Array.from(set);
-    });
+  const toggleLore = (id: string, on: boolean) => update((s) => {
+    const set = new Set(s.lorebookExport.enabledFieldIds);
+    if (on) set.add(id); else set.delete(id);
+    s.lorebookExport.enabledFieldIds = Array.from(set);
+  });
 
   return (
     <div className="areko-charexport">
-      <div className="areko-section-title">{t('chars.heading')}</div>
-      <div className="areko-field">
-        <label>{t('chars.exclude')}</label>
-        <input
-          className="text_pole"
-          placeholder={t('chars.excludeHint')}
-          value={preset.characterRules.excludedCharacters.join(', ')}
-          onChange={(e) =>
-            update((s) => {
-              s.presets[s.activePreset].characterRules.excludedCharacters = e.target.value
-                .split(',')
-                .map((v) => v.trim())
-                .filter(Boolean);
-            })
-          }
-        />
-        <span className="areko-hint">{t('chars.excludeNote')}</span>
-      </div>
-
       <div className="areko-section-title">{t('export2.heading')}</div>
       <div className="areko-field">
         <label>{t('export2.lorebookFields')}</label>
@@ -82,16 +49,11 @@ export const CharacterExport: FC = () => {
       </div>
       <div className="areko-field">
         <label>{t('export2.imageField')}</label>
-        <select
-          className="text_pole"
-          value={settings.imageGen.sourceFieldId}
-          onChange={(e) => update((s) => { s.imageGen.sourceFieldId = e.target.value; })}
-        >
+        <select className="text_pole" value={settings.imageGen.sourceFieldId} onChange={(e) => update((s) => { s.imageGen.sourceFieldId = e.target.value; })}>
           <option value="">{t('export2.none')}</option>
-          {flat.map((f) => (
-            <option key={f.id} value={f.id}>{f.label}</option>
-          ))}
+          {flat.map((f) => (<option key={f.id} value={f.id}>{f.label}</option>))}
         </select>
+        <span className="areko-hint">{t('export2.imageHint')}</span>
       </div>
     </div>
   );

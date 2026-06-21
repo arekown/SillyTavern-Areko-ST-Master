@@ -3,13 +3,8 @@ import { categoryKey } from './schema-builder';
 import { t } from '../i18n';
 
 function esc(s: any): string {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
 function isEmpty(v: any): boolean {
   if (v === null || v === undefined) return true;
   if (typeof v === 'string') return v.trim() === '';
@@ -17,16 +12,9 @@ function isEmpty(v: any): boolean {
   if (typeof v === 'object') return Object.keys(v).length === 0;
   return false;
 }
+function norm(s: any): string { return String(s ?? '').trim().toLowerCase(); }
 
-function norm(s: any): string {
-  return String(s ?? '').trim().toLowerCase();
-}
-
-interface CardOpts {
-  open?: boolean;
-  panelActions?: boolean;
-  imageOf?: (name: string) => string | undefined;
-}
+interface CardOpts { open?: boolean; panelActions?: boolean; imageOf?: (name: string) => string | undefined; }
 
 function renderPrimitive(field: FieldDef, value: any): string {
   const style = field.displayStyle ?? 'text';
@@ -42,76 +30,52 @@ function renderPrimitive(field: FieldDef, value: any): string {
   }
   return `<span class="areko-val">${text}</span>`;
 }
-
 function renderList(field: FieldDef, value: any[]): string {
   const items = (value ?? []).filter((v) => !isEmpty(v));
   if (items.length === 0) return '';
   if ((field.displayStyle ?? 'chip') === 'text') return `<span class="areko-val">${items.map(esc).join(', ')}</span>`;
   return `<span class="areko-chips">${items.map((v) => `<span class="areko-chip">${esc(v)}</span>`).join('')}</span>`;
 }
-
 function renderField(field: FieldDef, value: any): string {
-  if (field.enabled === false) return '';
-  if (isEmpty(value)) return '';
-
+  if (field.enabled === false || isEmpty(value)) return '';
   if (field.type === 'group') {
     const inner = renderFields(field.children ?? [], value ?? {});
-    if (!inner) return '';
-    return `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${inner}</details>`;
+    return inner ? `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${inner}</details>` : '';
   }
-
   if (field.type === 'objectList') {
     const arr = Array.isArray(value) ? value : [];
-    const cards = arr
-      .map((item) => {
-        const inner = renderFields(field.children ?? [], item ?? {});
-        return inner ? `<div class="areko-objitem">${inner}</div>` : '';
-      })
-      .filter(Boolean)
-      .join('');
-    if (!cards) return '';
-    return `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${cards}</details>`;
+    const cards = arr.map((item) => { const inner = renderFields(field.children ?? [], item ?? {}); return inner ? `<div class="areko-objitem">${inner}</div>` : ''; }).filter(Boolean).join('');
+    return cards ? `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${cards}</details>` : '';
   }
-
   if (field.type === 'list') {
     const html = renderList(field, value);
-    if (!html) return '';
-    return `<div class="areko-row"><span class="areko-label">${esc(field.label)}</span>${html}</div>`;
+    return html ? `<div class="areko-row"><span class="areko-label">${esc(field.label)}</span>${html}</div>` : '';
   }
-
   return `<div class="areko-row"><span class="areko-label">${esc(field.label)}</span>${renderPrimitive(field, value)}</div>`;
 }
-
 export function renderFields(fields: FieldDef[], data: any): string {
   return (fields || []).map((f) => renderField(f, data?.[f.key])).filter(Boolean).join('');
 }
-
 function actionButtons(name: string): string {
   const n = esc(name);
-  return (
-    `<div class="areko-charactions">` +
+  return `<div class="areko-charactions">` +
     `<span class="areko-iconbtn" data-areko-action="genimg" data-areko-name="${n}" title="${esc(t('panel.img.gen'))}"><i class="fa-solid fa-wand-magic-sparkles"></i></span>` +
     `<span class="areko-iconbtn" data-areko-action="upload" data-areko-name="${n}" title="${esc(t('panel.img.upload'))}"><i class="fa-solid fa-upload"></i></span>` +
     `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
-    `</div>`
-  );
+    `</div>`;
 }
-
 function characterCard(fields: FieldDef[], entry: any, opts: CardOpts): string {
   const name = entry?.character ?? entry?.name ?? '?';
   const inner = renderFields(fields, entry ?? {});
   let head = '';
   if (opts.panelActions) {
     const url = opts.imageOf ? opts.imageOf(name) : undefined;
-    const img = url
-      ? `<img class="areko-charimg" src="${esc(url)}" alt="${esc(name)}">`
-      : `<div class="areko-charimg areko-charimg--empty">${esc(t('panel.img.none'))}</div>`;
+    const img = url ? `<img class="areko-charimg" src="${esc(url)}" alt="${esc(name)}">` : `<div class="areko-charimg areko-charimg--empty">${esc(t('panel.img.none'))}</div>`;
     head = `<div class="areko-charimg-wrap">${img}${actionButtons(name)}</div>`;
   }
-  const openAttr = opts.open ? ' open' : '';
-  return `<details class="areko-charcard"${openAttr}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}</details>`;
+  const key = 'char:' + name;
+  return `<details class="areko-charcard" data-areko-key="${esc(key)}"${opts.open ? ' open' : ''}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}</details>`;
 }
-
 export function renderGeneral(categories: Category[], data: any): string {
   const out: string[] = [];
   for (const cat of categories) {
@@ -121,14 +85,7 @@ export function renderGeneral(categories: Category[], data: any): string {
   }
   return out.join('') || '<div class="areko-empty">—</div>';
 }
-
-export function renderCharacters(
-  categories: Category[],
-  data: any,
-  mode: 'player' | 'npc',
-  playerName: string,
-  opts: { imageOf?: (name: string) => string | undefined } = {},
-): string {
+export function renderCharacters(categories: Category[], data: any, mode: 'player' | 'npc', playerName: string, opts: { imageOf?: (name: string) => string | undefined } = {}): string {
   const out: string[] = [];
   const pn = norm(playerName);
   for (const cat of categories) {
@@ -144,7 +101,6 @@ export function renderCharacters(
   }
   return out.join('') || '<div class="areko-empty">—</div>';
 }
-
 export function renderFullTracker(categories: Category[], data: any): string {
   const parts: string[] = [];
   for (const cat of categories) {

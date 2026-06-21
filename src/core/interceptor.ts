@@ -1,21 +1,20 @@
+import { settingsManager } from './settings-manager';
 import { EXTENSION_KEY, TRACKER_VALUE_KEY } from '../config/constants';
 
-// Injiziert NUR den juengsten Tracker als JSON-Block in den Prompt.
-// (Timing "before": laeuft als generate_interceptor.)
+// Haengt die letzten X Tracker als JSON-Block in den ausgehenden Chat (vor der Antwort).
 export function injectLatestTracker(chat: any[]): void {
   if (!Array.isArray(chat)) return;
-  for (let i = chat.length - 2; i >= 0; i--) {
-    const value = chat[i]?.extra?.[EXTENSION_KEY]?.[TRACKER_VALUE_KEY];
-    if (value) {
-      const content = 'Tracker:\n```json\n' + JSON.stringify(value, null, 2) + '\n```';
-      chat.splice(i + 1, 0, {
-        role: 'user',
-        is_user: true,
-        is_system: false,
-        mes: content,
-        extra: {},
-      });
-      return; // nur das letzte Ergebnis
-    }
+  let count = 1;
+  try { count = settingsManager.getSettings().includeLastXTrackers ?? 1; } catch { count = 1; }
+  if (count <= 0) return;
+
+  const idxs: number[] = [];
+  for (let i = chat.length - 1; i >= 0 && idxs.length < count; i--) {
+    if (chat[i]?.extra?.[EXTENSION_KEY]?.[TRACKER_VALUE_KEY]) idxs.push(i);
+  }
+  for (const i of idxs) {
+    const v = chat[i].extra[EXTENSION_KEY][TRACKER_VALUE_KEY];
+    const content = 'Tracker:\n```json\n' + JSON.stringify(v, null, 2) + '\n```';
+    chat.splice(i + 1, 0, { role: 'user', is_user: true, is_system: false, mes: content, extra: {} });
   }
 }

@@ -1,14 +1,20 @@
-import type { FC } from 'react';
+import { FC, useState } from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import { ConnectionTab } from './settings/ConnectionTab';
+import { GeneralTab } from './settings/GeneralTab';
 import { SchemaBuilder } from './settings/SchemaBuilder';
-import { TestGenerate } from './settings/TestGenerate';
+import { PromptsTab } from './settings/PromptsTab';
 import { t } from '../i18n';
 
 let root: Root | null = null;
 let container: HTMLElement | null = null;
 
+type Tab = 'general' | 'layout' | 'prompts';
+
 const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [tab, setTab] = useState<Tab>('general');
+  const TabBtn: FC<{ k: Tab; label: string }> = ({ k, label }) => (
+    <div className={'areko-wtab' + (tab === k ? ' is-active' : '')} onClick={() => setTab(k)}>{label}</div>
+  );
   return (
     <div className="areko-overlay" onClick={onClose}>
       <div className="areko-window" onClick={(e) => e.stopPropagation()}>
@@ -16,12 +22,15 @@ const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
           <span>{t('window.title')}</span>
           <div className="fa-solid fa-xmark areko-window__close" onClick={onClose}></div>
         </div>
+        <div className="areko-window__tabs">
+          <TabBtn k="general" label={t('tab.general')} />
+          <TabBtn k="layout" label={t('tab.layout')} />
+          <TabBtn k="prompts" label={t('tab.prompts')} />
+        </div>
         <div className="areko-window__body">
-          <ConnectionTab />
-          <hr className="areko-divider" />
-          <SchemaBuilder />
-          <hr className="areko-divider" />
-          <TestGenerate />
+          {tab === 'general' && <GeneralTab />}
+          {tab === 'layout' && <SchemaBuilder />}
+          {tab === 'prompts' && <PromptsTab />}
         </div>
       </div>
     </div>
@@ -37,7 +46,4 @@ export function openSettingsWindow(): void {
   }
   root!.render(<SettingsWindow onClose={closeSettingsWindow} />);
 }
-
-export function closeSettingsWindow(): void {
-  root?.render(<></>);
-}
+export function closeSettingsWindow(): void { root?.render(<></>); }

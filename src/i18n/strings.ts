@@ -1,17 +1,16 @@
 import { Language } from '../config/types';
-
 type Entry = Record<Language, string>;
 
 export const STRINGS: Record<string, Entry> = {
   'window.title': { de: 'Areko Tracker — Einstellungen', en: 'Areko Tracker — Settings' },
   'window.open': { de: 'Einstellungen öffnen', en: 'Open settings' },
+  'tab.general': { de: 'Allgemeines', en: 'General' },
+  'tab.layout': { de: 'Layout', en: 'Layout' },
+  'tab.prompts': { de: 'Prompts', en: 'Prompts' },
 
   'connection.profile': { de: 'Connection Profil', en: 'Connection Profile' },
   'connection.profile.placeholder': { de: '— Profil wählen —', en: '— Select profile —' },
-  'connection.profile.empty': {
-    de: 'Keine Profile gefunden. Lege im ST-Connection-Manager eins an.',
-    en: 'No profiles found. Create one in the ST Connection Manager.',
-  },
+  'connection.profile.empty': { de: 'Keine Profile gefunden. Lege im ST-Connection-Manager eins an.', en: 'No profiles found. Create one in the ST Connection Manager.' },
   'connection.autoMode': { de: 'Auto-Modus', en: 'Auto Mode' },
   'connection.autoMode.off': { de: 'Aus', en: 'Off' },
   'connection.autoMode.inputs': { de: 'Nur bei Eingaben', en: 'On inputs only' },
@@ -22,6 +21,12 @@ export const STRINGS: Record<string, Entry> = {
   'connection.timing.before': { de: 'Vor der Antwort', en: 'Before the response' },
   'connection.timing.after': { de: 'Nach der Antwort', en: 'After the response' },
   'connection.language': { de: 'Sprache', en: 'Language' },
+
+  'general.lastMessages': { de: 'Inklusive der letzten X Nachrichten', en: 'Include last X messages' },
+  'general.lastMessages.hint': { de: '0 = alle Nachrichten werden mitgeliefert.', en: '0 = all messages are included.' },
+  'general.lastTrackers': { de: 'Anzahl der letzten Tracker mitschicken', en: 'Number of recent trackers to include' },
+  'general.lastTrackers.hint': { de: 'Wird an Tracker-Generierung und normale Antworten angehängt.', en: 'Attached to tracker generation and normal responses.' },
+  'general.maxTokens': { de: 'Max Antwort-Token', en: 'Max response tokens' },
 
   'builder.heading': { de: 'Schema-Builder', en: 'Schema Builder' },
   'builder.empty': { de: 'Noch leer.', en: 'Empty so far.' },
@@ -61,11 +66,7 @@ export const STRINGS: Record<string, Entry> = {
 
   'scope.global': { de: 'Global', en: 'Global' },
   'scope.perCharacter': { de: 'Pro Charakter', en: 'Per character' },
-  'scope.perCharacter.hint': {
-    de: 'Diese Kategorie wird über alle Charaktere geloopt — ein Eintrag pro Charakter.',
-    en: 'This category loops over all characters — one entry per character.',
-  },
-
+  'scope.perCharacter.hint': { de: 'Diese Kategorie wird über alle Charaktere geloopt — ein Eintrag pro Charakter.', en: 'This category loops over all characters — one entry per character.' },
   'appliesTo.all': { de: 'Beide', en: 'Both' },
   'appliesTo.npc': { de: 'Nur NPCs', en: 'NPCs only' },
   'appliesTo.player': { de: 'Nur Spieler', en: 'Player only' },
@@ -85,18 +86,23 @@ export const STRINGS: Record<string, Entry> = {
   'preset.import': { de: 'Importieren', en: 'Import' },
   'preset.renamePrompt': { de: 'Name des Profils:', en: 'Profile name:' },
 
-  'chars.heading': { de: 'Charaktere', en: 'Characters' },
   'chars.exclude': { de: 'Ausgeschlossene Charaktere', en: 'Excluded characters' },
   'chars.excludeHint': { de: 'Namen mit Komma trennen', en: 'Separate names with commas' },
-  'chars.excludeNote': {
-    de: 'Diese Charaktere werden ganz aus Pro-Charakter-Kategorien herausgehalten.',
-    en: 'These characters are kept out of per-character categories entirely.',
-  },
+  'chars.excludeNote': { de: 'Diese Charaktere werden aus Pro-Charakter-Kategorien herausgehalten.', en: 'These characters are kept out of per-character categories.' },
 
   'export2.heading': { de: 'Export & Bild', en: 'Export & Image' },
   'export2.lorebookFields': { de: 'Felder für Lorebook-Export', en: 'Fields for lorebook export' },
-  'export2.imageField': { de: 'Feld für Bild-Generierung', en: 'Field for image generation' },
+  'export2.imageField': { de: 'Feld/Gruppe für Bild-Generierung', en: 'Field/group for image generation' },
+  'export2.imageHint': { de: 'Eine Gruppe (z. B. Aussehen) nutzt alle ihre Felder.', en: 'A group (e.g. Appearance) uses all of its fields.' },
   'export2.none': { de: '— keins —', en: '— none —' },
+
+  'prompts.reset': { de: 'Default', en: 'Default' },
+  'prompts.tracker': { de: 'Tracker-Prompt (Verhalten)', en: 'Tracker prompt (behavior)' },
+  'prompts.tracker.hint': { de: 'Platzhalter: {{language}}. Steuert, wie das LLM den Tracker füllt.', en: 'Placeholder: {{language}}. Controls how the LLM fills the tracker.' },
+  'prompts.json': { de: 'JSON-Format-Prompt', en: 'JSON format prompt' },
+  'prompts.json.hint': { de: 'Platzhalter: {{schema}}, {{example_response}}.', en: 'Placeholders: {{schema}}, {{example_response}}.' },
+  'prompts.image': { de: 'Bild-Prompt (/sd)', en: 'Image prompt (/sd)' },
+  'prompts.image.hint': { de: 'Platzhalter: {{name}}, {{details}}.', en: 'Placeholders: {{name}}, {{details}}.' },
 
   'test.heading': { de: 'Test', en: 'Test' },
   'test.run': { de: 'Test-Generierung (letzter Chat)', en: 'Test generation (latest chat)' },

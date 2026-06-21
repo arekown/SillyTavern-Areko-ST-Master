@@ -126,3 +126,27 @@
 .areko-charimg--empty { display: flex; align-items: center; justify-content: center; font-size: 0.72rem; opacity: 0.5; background: rgba(255, 255, 255, 0.05); }
 .areko-charactions { display: flex; flex-direction: column; gap: 6px; }
 .areko-iconbtn { cursor: pointer; opacity: 0.75; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15)); &:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); } }
+
+/* ---------- Einstellungs-Register ---------- */
+.areko-window__tabs { display: flex; border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.12)); padding: 0 8px; }
+.areko-wtab {
+  padding: 10px 16px; cursor: pointer; font-weight: 600; font-size: 0.85rem; opacity: 0.6;
+  border-bottom: 2px solid transparent;
+  &:hover { opacity: 0.85; }
+  &.is-active { opacity: 1; border-bottom-color: var(--SmartThemeQuoteColor, #88c0d0); }
+}
+
+/* ---------- Slider + Prompts ---------- */
+.areko-slider-row { display: flex; align-items: center; gap: 10px; input[type="range"] { flex: 1; } }
+.areko-slider-num { width: 80px; flex: 0 0 auto; }
+.areko-prompt-head { display: flex; align-items: center; justify-content: space-between; }
+.areko-prompt-reset { cursor: pointer; font-size: 0.78rem; opacity: 0.7; &:hover { opacity: 1; } }
+.areko-prompt-area { width: 100%; font-family: monospace; font-size: 0.8rem; resize: vertical; white-space: pre; }
+
+/* ---------- Lightbox ---------- */
+.areko-lightbox {
+  position: fixed; inset: 0; z-index: 11000; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.85); cursor: zoom-out;
+  img { max-width: 92vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 10px 50px rgba(0,0,0,0.6); }
+}
+.areko-charimg { cursor: zoom-in; }

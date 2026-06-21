@@ -23,10 +23,7 @@ export function setTrackerFor(messageId: number, value: any): void {
 export function clearTrackerFor(messageId: number): void {
   const ctx: any = SillyTavern.getContext();
   const msg = ctx?.chat?.[messageId];
-  if (msg?.extra?.[EXTENSION_KEY]) {
-    delete msg.extra[EXTENSION_KEY];
-    saveChat(ctx);
-  }
+  if (msg?.extra?.[EXTENSION_KEY]) { delete msg.extra[EXTENSION_KEY]; saveChat(ctx); }
 }
 
 export function getLatestTracker(): any | null {
@@ -38,6 +35,19 @@ export function getLatestTracker(): any | null {
     if (v) return v;
   }
   return null;
+}
+
+export function recentTrackerBlocks(beforeIndex: number, count: number): string[] {
+  if (count <= 0) return [];
+  const ctx: any = SillyTavern.getContext();
+  const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
+  const blocks: string[] = [];
+  const start = Math.min(beforeIndex, chat.length - 1);
+  for (let i = start; i >= 0 && blocks.length < count; i--) {
+    const v = chat[i]?.extra?.[EXTENSION_KEY]?.[TRACKER_VALUE_KEY];
+    if (v) blocks.push('Tracker:\n```json\n' + JSON.stringify(v, null, 2) + '\n```');
+  }
+  return blocks.reverse();
 }
 
 export function getPlayerName(): string {
