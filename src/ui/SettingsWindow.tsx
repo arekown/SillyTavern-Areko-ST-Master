@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { ConnectionTab } from './settings/ConnectionTab';
+import { t } from '../i18n';
 
 let root: Root | null = null;
 let container: HTMLElement | null = null;
@@ -10,7 +11,7 @@ const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
     <div className="areko-overlay" onClick={onClose}>
       <div className="areko-window" onClick={(e) => e.stopPropagation()}>
         <div className="areko-window__header">
-          <span>Areko Tracker — Einstellungen</span>
+          <span>{t('window.title')}</span>
           <div className="fa-solid fa-xmark areko-window__close" onClick={onClose}></div>
         </div>
         <div className="areko-window__body">

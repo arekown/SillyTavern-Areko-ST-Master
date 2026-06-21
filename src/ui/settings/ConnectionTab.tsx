@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { settingsManager } from '../../core/settings-manager';
 import { AutoMode, Timing, Language, ExtensionSettings } from '../../config/types';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
+import { t } from '../../i18n';
 
 interface ConnectionProfile {
   id: string;
@@ -36,7 +37,7 @@ export const ConnectionTab: FC = () => {
   return (
     <div className="areko-tab">
       <div className="areko-field">
-        <label>Connection Profil</label>
+        <label>{t('connection.profile')}</label>
         <select
           className="text_pole"
           value={settings.profileId}
@@ -46,22 +47,18 @@ export const ConnectionTab: FC = () => {
             })
           }
         >
-          <option value="">— Profil wählen —</option>
+          <option value="">{t('connection.profile.placeholder')}</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name ?? p.id}
             </option>
           ))}
         </select>
-        {profiles.length === 0 && (
-          <span className="areko-hint">
-            Keine Profile gefunden. Lege im ST-Connection-Manager eins an.
-          </span>
-        )}
+        {profiles.length === 0 && <span className="areko-hint">{t('connection.profile.empty')}</span>}
       </div>
 
       <div className="areko-field">
-        <label>Auto-Modus</label>
+        <label>{t('connection.autoMode')}</label>
         <select
           className="text_pole"
           value={settings.autoMode}
@@ -71,17 +68,17 @@ export const ConnectionTab: FC = () => {
             })
           }
         >
-          <option value={AutoMode.OFF}>Aus</option>
-          <option value={AutoMode.INPUTS}>Nur bei Eingaben</option>
-          <option value={AutoMode.RESPONSES}>Nur bei Antworten</option>
-          <option value={AutoMode.BOTH}>Beides</option>
+          <option value={AutoMode.OFF}>{t('connection.autoMode.off')}</option>
+          <option value={AutoMode.INPUTS}>{t('connection.autoMode.inputs')}</option>
+          <option value={AutoMode.RESPONSES}>{t('connection.autoMode.responses')}</option>
+          <option value={AutoMode.BOTH}>{t('connection.autoMode.both')}</option>
         </select>
       </div>
 
       <div className="areko-field">
         <label>
-          Timing
-          {autoOff && <span className="areko-hint">(aktiv, sobald Auto-Modus an ist)</span>}
+          {t('connection.timing')}
+          {autoOff && <span className="areko-hint">{t('connection.timing.hint')}</span>}
         </label>
         <select
           className="text_pole"
@@ -93,13 +90,13 @@ export const ConnectionTab: FC = () => {
             })
           }
         >
-          <option value={Timing.BEFORE}>Vor der Antwort</option>
-          <option value={Timing.AFTER}>Nach der Antwort</option>
+          <option value={Timing.BEFORE}>{t('connection.timing.before')}</option>
+          <option value={Timing.AFTER}>{t('connection.timing.after')}</option>
         </select>
       </div>
 
       <div className="areko-field">
-        <label>Sprache der Werte</label>
+        <label>{t('connection.language')}</label>
         <select
           className="text_pole"
           value={settings.language}
