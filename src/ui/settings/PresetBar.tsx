@@ -1,6 +1,7 @@
 import { FC, useRef, ChangeEvent } from 'react';
 import { settingsManager } from '../../core/settings-manager';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
+import { notifyUpdated } from '../../core/tracker-store';
 import {
   createPreset, duplicatePreset, deletePreset, renamePreset, resetPreset, exportPreset, importPreset,
 } from '../../core/preset-ops';
@@ -11,9 +12,12 @@ export const PresetBar: FC = () => {
   const settings = settingsManager.getSettings();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const save = () => { settingsManager.saveSettings(); forceUpdate(); };
+  const save = () => {
+    settingsManager.saveSettings();
+    forceUpdate();
+    notifyUpdated();
+  };
   const mutate = (fn: () => void) => { fn(); save(); };
-
   const active = settings.activePreset;
 
   const onSelect = (e: ChangeEvent<HTMLSelectElement>) => mutate(() => { settings.activePreset = e.target.value; });

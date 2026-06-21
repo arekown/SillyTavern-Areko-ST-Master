@@ -1,4 +1,6 @@
 import { Category, FieldDef } from '../config/types';
+import { categoryKey } from './schema-builder';
+import { t } from '../i18n';
 
 function esc(s: any): string {
   return String(s ?? '')
@@ -6,11 +8,6 @@ function esc(s: any): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
-
-function sanitizeKey(raw: string): string {
-  const k = String(raw ?? '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
-  return k || 'category';
 }
 
 function isEmpty(v: any): boolean {
@@ -23,6 +20,12 @@ function isEmpty(v: any): boolean {
 
 function norm(s: any): string {
   return String(s ?? '').trim().toLowerCase();
+}
+
+interface CardOpts {
+  open?: boolean;
+  panelActions?: boolean;
+  imageOf?: (name: string) => string | undefined;
 }
 
 function renderPrimitive(field: FieldDef, value: any): string {
@@ -43,9 +46,7 @@ function renderPrimitive(field: FieldDef, value: any): string {
 function renderList(field: FieldDef, value: any[]): string {
   const items = (value ?? []).filter((v) => !isEmpty(v));
   if (items.length === 0) return '';
-  if ((field.displayStyle ?? 'chip') === 'text') {
-    return `<span class="areko-val">${items.map(esc).join(', ')}</span>`;
-  }
+  if ((field.displayStyle ?? 'chip') === 'text') return `<span class="areko-val">${items.map(esc).join(', ')}</span>`;
   return `<span class="areko-chips">${items.map((v) => `<span class="areko-chip">${esc(v)}</span>`).join('')}</span>`;
 }
 
@@ -56,7 +57,7 @@ function renderField(field: FieldDef, value: any): string {
   if (field.type === 'group') {
     const inner = renderFields(field.children ?? [], value ?? {});
     if (!inner) return '';
-    return `<div class="areko-group"><div class="areko-group__title">${esc(field.label)}</div>${inner}</div>`;
+    return `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${inner}</details>`;
   }
 
   if (field.type === 'objectList') {
@@ -69,7 +70,7 @@ function renderField(field: FieldDef, value: any): string {
       .filter(Boolean)
       .join('');
     if (!cards) return '';
-    return `<div class="areko-group"><div class="areko-group__title">${esc(field.label)}</div>${cards}</div>`;
+    return `<details class="areko-group" open><summary class="areko-group__title">${esc(field.label)}</summary>${cards}</details>`;
   }
 
   if (field.type === 'list') {
@@ -82,44 +83,63 @@ function renderField(field: FieldDef, value: any): string {
 }
 
 export function renderFields(fields: FieldDef[], data: any): string {
-  return (fields || [])
-    .map((f) => renderField(f, data?.[f.key]))
-    .filter(Boolean)
-    .join('');
+  return (fields || []).map((f) => renderField(f, data?.[f.key])).filter(Boolean).join('');
 }
 
-function getCatData(data: any, cat: Category): any {
-  return data?.[sanitizeKey(cat.name)];
+function actionButtons(name: string): string {
+  const n = esc(name);
+  return (
+    `<div class="areko-charactions">` +
+    `<span class="areko-iconbtn" data-areko-action="genimg" data-areko-name="${n}" title="${esc(t('panel.img.gen'))}"><i class="fa-solid fa-wand-magic-sparkles"></i></span>` +
+    `<span class="areko-iconbtn" data-areko-action="upload" data-areko-name="${n}" title="${esc(t('panel.img.upload'))}"><i class="fa-solid fa-upload"></i></span>` +
+    `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
+    `</div>`
+  );
 }
 
-function characterCard(catFields: FieldDef[], entry: any): string {
+function characterCard(fields: FieldDef[], entry: any, opts: CardOpts): string {
   const name = entry?.character ?? entry?.name ?? '?';
-  const inner = renderFields(catFields, entry ?? {});
-  return `<div class="areko-charcard"><div class="areko-charcard__name">${esc(name)}</div>${inner || '<div class="areko-empty">—</div>'}</div>`;
+  const inner = renderFields(fields, entry ?? {});
+  let head = '';
+  if (opts.panelActions) {
+    const url = opts.imageOf ? opts.imageOf(name) : undefined;
+    const img = url
+      ? `<img class="areko-charimg" src="${esc(url)}" alt="${esc(name)}">`
+      : `<div class="areko-charimg areko-charimg--empty">${esc(t('panel.img.none'))}</div>`;
+    head = `<div class="areko-charimg-wrap">${img}${actionButtons(name)}</div>`;
+  }
+  const openAttr = opts.open ? ' open' : '';
+  return `<details class="areko-charcard"${openAttr}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}</details>`;
 }
 
 export function renderGeneral(categories: Category[], data: any): string {
   const out: string[] = [];
   for (const cat of categories) {
     if (cat.hidden || cat.scope === 'perCharacter') continue;
-    const inner = renderFields(cat.fields, getCatData(data, cat) ?? {});
+    const inner = renderFields(cat.fields, data?.[categoryKey(cat)] ?? {});
     if (inner) out.push(`<div class="areko-cat-block"><div class="areko-cat-block__title">${esc(cat.name)}</div>${inner}</div>`);
   }
   return out.join('') || '<div class="areko-empty">—</div>';
 }
 
-export function renderCharacters(categories: Category[], data: any, mode: 'player' | 'npc', playerName: string): string {
+export function renderCharacters(
+  categories: Category[],
+  data: any,
+  mode: 'player' | 'npc',
+  playerName: string,
+  opts: { imageOf?: (name: string) => string | undefined } = {},
+): string {
   const out: string[] = [];
   const pn = norm(playerName);
   for (const cat of categories) {
     if (cat.hidden || cat.scope !== 'perCharacter') continue;
-    const arr = getCatData(data, cat);
+    const arr = data?.[categoryKey(cat)];
     if (!Array.isArray(arr)) continue;
     for (const entry of arr) {
       const isPlayer = norm(entry?.character ?? entry?.name) === pn;
       if (mode === 'player' && !isPlayer) continue;
       if (mode === 'npc' && isPlayer) continue;
-      out.push(characterCard(cat.fields, entry));
+      out.push(characterCard(cat.fields, entry, { open: mode === 'player', panelActions: true, imageOf: opts.imageOf }));
     }
   }
   return out.join('') || '<div class="areko-empty">—</div>';
@@ -129,10 +149,10 @@ export function renderFullTracker(categories: Category[], data: any): string {
   const parts: string[] = [];
   for (const cat of categories) {
     if (cat.hidden) continue;
-    const cd = getCatData(data, cat);
+    const cd = data?.[categoryKey(cat)];
     if (cat.scope === 'perCharacter') {
       if (!Array.isArray(cd) || cd.length === 0) continue;
-      const cards = cd.map((e) => characterCard(cat.fields, e)).join('');
+      const cards = cd.map((e) => characterCard(cat.fields, e, { open: true, panelActions: false })).join('');
       parts.push(`<div class="areko-cat-block"><div class="areko-cat-block__title">${esc(cat.name)}</div>${cards}</div>`);
     } else {
       const inner = renderFields(cat.fields, cd ?? {});

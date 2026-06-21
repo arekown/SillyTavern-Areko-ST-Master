@@ -64,23 +64,20 @@ function childrenToProps(children: FieldDef[]): Record<string, any> {
 }
 
 function requiredKeys(children: FieldDef[]): string[] {
-  return enabledFields(children)
-    .filter((c) => c.required)
-    .map((c) => c.key);
+  return enabledFields(children).filter((c) => c.required).map((c) => c.key);
 }
 
 function appliesHint(appliesTo?: AppliesTo): string {
   switch (appliesTo) {
     case 'npc':
-      return ' (nur fuer NPCs ausfuellen, beim Spieler leer lassen)';
+      return ' (only fill for NPCs, leave empty for the player)';
     case 'player':
-      return ' (nur fuer den Spieler-Charakter ausfuellen, bei NPCs leer lassen)';
+      return ' (only fill for the player character, leave empty for NPCs)';
     default:
       return '';
   }
 }
 
-// Pro-Charakter-Kategorie: Felder bekommen "Gilt fuer"-Hinweise in der Beschreibung.
 function childrenToPropsPerChar(children: FieldDef[]): Record<string, any> {
   const props: Record<string, any> = {};
   for (const c of enabledFields(children)) {
@@ -93,15 +90,17 @@ function childrenToPropsPerChar(children: FieldDef[]): Record<string, any> {
 }
 
 function requiredKeysPerChar(children: FieldDef[]): string[] {
-  // Nur Felder, die fuer ALLE gelten, koennen global "required" sein.
-  return enabledFields(children)
-    .filter((c) => c.required && (c.appliesTo ?? 'all') === 'all')
-    .map((c) => c.key);
+  return enabledFields(children).filter((c) => c.required && (c.appliesTo ?? 'all') === 'all').map((c) => c.key);
 }
 
 function sanitizeKey(raw: string): string {
-  const k = raw.trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
+  const k = String(raw ?? '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
   return k || 'category';
+}
+
+// Stabiler Kategorie-Schluessel aus der id (sprachunabhaengig).
+export function categoryKey(cat: Category): string {
+  return sanitizeKey(cat.id || cat.name);
 }
 
 export function buildJsonSchema(categories: Category[], title = 'Tracker'): any {
@@ -112,16 +111,16 @@ export function buildJsonSchema(categories: Category[], title = 'Tracker'): any 
     if (cat.hidden) continue;
     const fields = enabledFields(cat.fields);
     if (fields.length === 0) continue;
-    const key = sanitizeKey(cat.name);
+    const key = categoryKey(cat);
 
     if (cat.scope === 'perCharacter') {
       properties[key] = {
         type: 'array',
-        description: cat.name + ' (ein Eintrag pro Charakter)',
+        description: cat.name + ' (one entry per character)',
         items: {
           type: 'object',
           properties: {
-            character: { type: 'string', description: 'Name des Charakters' },
+            character: { type: 'string', description: 'Name of the character' },
             ...childrenToPropsPerChar(fields),
           },
           required: ['character', ...requiredKeysPerChar(fields)],
@@ -138,11 +137,5 @@ export function buildJsonSchema(categories: Category[], title = 'Tracker'): any 
     required.push(key);
   }
 
-  return {
-    $schema: 'http://json-schema.org/draft-07/schema#',
-    title,
-    type: 'object',
-    properties,
-    required,
-  };
+  return { $schema: 'http://json-schema.org/draft-07/schema#', title, type: 'object', properties, required };
 }

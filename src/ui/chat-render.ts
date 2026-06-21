@@ -40,8 +40,9 @@ function attachTo(mes: HTMLElement): void {
   const text = mes.querySelector('.mes_text');
   if (!text) return;
 
+  const s = settingsManager.getSettings();
   const data = getTrackerFor(messageId);
-  const sig = `${data ? 1 : 0}:${busy.has(messageId) ? 1 : 0}:${data ? JSON.stringify(data).length : 0}`;
+  const sig = `${s.activePreset}:${s.language}:${data ? 1 : 0}:${busy.has(messageId) ? 1 : 0}:${data ? JSON.stringify(data).length : 0}`;
 
   let block = mes.querySelector('.areko-trk') as HTMLElement | null;
   if (block && block.dataset.sig === sig) return;
@@ -52,10 +53,10 @@ function attachTo(mes: HTMLElement): void {
     text.insertAdjacentElement('afterend', block);
   }
 
-  const wasOpen = block.querySelector('details')?.open ?? false;
+  const wasOpen = block.querySelector('details.areko-trk__details')?.hasAttribute('open') ?? false;
   block.dataset.sig = sig;
   block.innerHTML = buildBlockHtml(messageId);
-  const det = block.querySelector('details');
+  const det = block.querySelector('details.areko-trk__details') as HTMLDetailsElement | null;
   if (det && wasOpen) det.open = true;
 
   block.querySelector('.areko-trk__gen')?.addEventListener('click', async () => {

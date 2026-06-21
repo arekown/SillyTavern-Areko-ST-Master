@@ -114,4 +114,9 @@ export const STRINGS: Record<string, Entry> = {
   'panel.tab.general': { de: 'Allgemein', en: 'General' },
   'panel.tab.player': { de: 'Spieler', en: 'Player' },
   'panel.tab.npc': { de: 'NPCs', en: 'NPCs' },
+  'panel.img.gen': { de: 'Bild generieren', en: 'Generate image' },
+  'panel.img.upload': { de: 'Bild hochladen', en: 'Upload image' },
+  'panel.img.delete': { de: 'Bild löschen', en: 'Delete image' },
+  'panel.img.none': { de: 'kein Bild', en: 'no image' },
+  'panel.img.busy': { de: 'Erzeuge Bild…', en: 'Generating image…' },
 };

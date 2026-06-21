@@ -459,6 +459,12 @@
   padding: 12px;
 }
 
+.areko-imgbusy {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
 /* ---------- Chat-Tracker ---------- */
 .areko-trk {
   margin: 4px 0 2px;
@@ -589,7 +595,8 @@
   border-left: 2px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
 }
 
-.areko-group__title {
+.areko-group > summary.areko-group__title {
+  cursor: pointer;
   font-weight: 600;
   font-size: 0.8rem;
   opacity: 0.8;
@@ -611,7 +618,8 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.areko-charcard__name {
+.areko-charcard > summary.areko-charcard__name {
+  cursor: pointer;
   font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 4px;
@@ -621,4 +629,47 @@
   opacity: 0.5;
   font-size: 0.82rem;
   padding: 6px 0;
+}
+
+/* ---------- Charakter-Bilder ---------- */
+.areko-charimg-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 6px 0;
+}
+
+.areko-charimg {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15));
+}
+
+.areko-charimg--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.areko-charactions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.areko-iconbtn {
+  cursor: pointer;
+  opacity: 0.75;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15));
+}
+.areko-iconbtn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
 }

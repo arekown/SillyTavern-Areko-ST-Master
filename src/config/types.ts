@@ -77,6 +77,7 @@ export interface ExtensionSettings {
   presets: Record<string, Preset>;
   imageGen: ImageGenSettings;
   lorebookExport: LorebookExportSettings;
+  characterImages: Record<string, string>;
   prompt: string;
   panelOpen: boolean;
 }
