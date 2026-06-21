@@ -4,7 +4,6 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { notifyUpdated } from '../../core/tracker-store';
 import { ExtensionSettings } from '../../config/types';
 import { ConnectionTab } from './ConnectionTab';
-import { TestGenerate } from './TestGenerate';
 import { t } from '../../i18n';
 
 export const GeneralTab: FC = () => {
@@ -50,9 +49,6 @@ export const GeneralTab: FC = () => {
           <span className="areko-hint">{t('chars.excludeNote')}</span>
         </div>
       )}
-
-      <hr className="areko-divider" />
-      <TestGenerate />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { settingsManager } from './core/settings-manager';
-import { injectLatestTracker } from './core/interceptor';
+import { trackerInterceptor } from './core/interceptor';
 import { addLauncherButton } from './ui/launcher';
 import { initChatRender } from './ui/chat-render';
 import { mountPanel } from './ui/panel/mount';
@@ -8,7 +8,7 @@ import { INTERCEPTOR_NAME, VERSION } from './config/constants';
 import { buildPreset } from './config/defaults';
 import { DEFAULT_TRACKER_PROMPT, DEFAULT_JSON_PROMPT, DEFAULT_IMAGE_PROMPT } from './core/prompts';
 
-(globalThis as any)[INTERCEPTOR_NAME] = (chat: any[]) => injectLatestTracker(chat);
+(globalThis as any)[INTERCEPTOR_NAME] = (chat: any[]) => trackerInterceptor(chat);
 
 // Einmalige Migration: System-Presets (DE/EN) frisch aus dem Code aufbauen,
 // damit alte (faelschlich deutsche) gespeicherte Versionen ueberschrieben werden.

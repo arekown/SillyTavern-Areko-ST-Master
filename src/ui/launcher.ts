@@ -21,7 +21,7 @@ function addSettingsPanelEntry(): void {
   block.id = 'areko-tracker-settings-block';
   block.innerHTML =
     '<div class="inline-drawer">' +
-    '<div class="inline-drawer-toggle inline-drawer-header"><b>Areko Tracker</b>' +
+    '<div class="inline-drawer-toggle inline-drawer-header"><b>Areko-ST-Master</b>' +
     '<div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div></div>' +
     '<div class="inline-drawer-content">' +
     '<div class="menu_button menu_button_icon areko-open-window"><i class="fa-solid fa-table-list"></i><span>' +
@@ -32,7 +32,7 @@ function addSettingsPanelEntry(): void {
 }
 
 export function addLauncherButton(): void {
-  addWandEntry('areko-tracker-launcher', 'fa-table-list', 'Areko Tracker', () => openSettingsWindow());
+  // Nur noch das Panel im Zauberstab; die Einstellungen liegen im Extensions-Settings-Panel.
   addWandEntry('areko-panel-launcher', 'fa-table-columns', t('panel.title'), () => togglePanel());
   addSettingsPanelEntry();
 }
