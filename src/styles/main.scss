@@ -68,3 +68,47 @@
   font-size: 0.78rem;
   margin-left: 6px;
 }
+
+.areko-divider {
+  border: none;
+  border-top: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
+  margin: 18px 0;
+}
+
+.areko-section-title {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+.areko-test {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__btn {
+    align-self: flex-start;
+    cursor: pointer;
+  }
+
+  &__error {
+    color: #e06c75;
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+  }
+
+  &__result {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 320px;
+    overflow: auto;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}

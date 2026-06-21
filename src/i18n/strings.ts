@@ -29,4 +29,8 @@ export const STRINGS: Record<string, Entry> = {
   'connection.timing.after': { de: 'Nach der Antwort', en: 'After the response' },
 
   'connection.language': { de: 'Sprache', en: 'Language' },
+
+  'test.heading': { de: 'Test', en: 'Test' },
+  'test.run': { de: 'Test-Generierung (letzter Chat)', en: 'Test generation (latest chat)' },
+  'test.running': { de: 'Generiere…', en: 'Generating…' },
 };

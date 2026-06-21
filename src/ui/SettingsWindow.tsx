@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { ConnectionTab } from './settings/ConnectionTab';
+import { TestGenerate } from './settings/TestGenerate';
 import { t } from '../i18n';
 
 let root: Root | null = null;
@@ -16,6 +17,8 @@ const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
         <div className="areko-window__body">
           <ConnectionTab />
+          <hr className="areko-divider" />
+          <TestGenerate />
         </div>
       </div>
     </div>
