@@ -2,6 +2,7 @@ import { settingsManager } from './settings-manager';
 import { buildJsonSchema } from './schema-builder';
 import { schemaToExample } from './schema-to-example';
 import { Language } from '../config/types';
+import { setTrackerFor, getPlayerName, notifyUpdated } from './tracker-store';
 
 interface ChatMsg {
   role: 'user' | 'assistant';
@@ -13,15 +14,13 @@ interface InstructionOpts {
   excluded: string[];
 }
 
-function gatherContext(maxMessages = 6): ChatMsg[] {
+function gatherContext(maxMessages: number, upToIndex?: number): ChatMsg[] {
   const ctx: any = SillyTavern.getContext();
-  const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
+  const chatAll = Array.isArray(ctx?.chat) ? ctx.chat : [];
+  const chat = typeof upToIndex === 'number' ? chatAll.slice(0, upToIndex + 1) : chatAll;
   const slice = maxMessages > 0 ? chat.slice(-maxMessages) : chat;
   return slice
-    .map((m: any) => ({
-      role: m?.is_user ? 'user' : 'assistant',
-      content: String(m?.mes ?? '').trim(),
-    }))
+    .map((m: any) => ({ role: m?.is_user ? 'user' : 'assistant', content: String(m?.mes ?? '').trim() }))
     .filter((m: ChatMsg) => m.content.length > 0);
 }
 
@@ -87,18 +86,14 @@ function extractJson(content: string): any {
   return JSON.parse(text);
 }
 
-export async function generateTrackerData(): Promise<object> {
+export async function generateTrackerData(upToIndex?: number): Promise<object> {
   const ctx: any = SillyTavern.getContext();
   const settings = settingsManager.getSettings();
 
-  if (!settings.profileId) {
-    throw new Error('Kein Connection-Profil gewaehlt.');
-  }
+  if (!settings.profileId) throw new Error('Kein Connection-Profil gewaehlt.');
 
   const service = ctx?.ConnectionManagerRequestService;
-  if (!service?.sendRequest) {
-    throw new Error('ConnectionManagerRequestService nicht verfuegbar (ST-Version zu alt?).');
-  }
+  if (!service?.sendRequest) throw new Error('ConnectionManagerRequestService nicht verfuegbar (ST-Version zu alt?).');
 
   const preset = settings.presets[settings.activePreset];
   if (!preset) throw new Error('Kein aktives Preset gefunden.');
@@ -108,12 +103,10 @@ export async function generateTrackerData(): Promise<object> {
     throw new Error('Das aktive Preset hat keine aktiven Felder.');
   }
 
-  const context = gatherContext(6);
-  if (context.length === 0) {
-    throw new Error('Kein Chat-Kontext vorhanden. Schreib erst ein paar Nachrichten.');
-  }
+  const context = gatherContext(6, upToIndex);
+  if (context.length === 0) throw new Error('Kein Chat-Kontext vorhanden.');
 
-  const playerName = String(ctx?.name1 || (settings.language === 'en' ? 'the user' : 'der Nutzer'));
+  const playerName = getPlayerName();
   const excluded = preset.characterRules?.excludedCharacters ?? [];
 
   const messages: ChatMsg[] = [
@@ -135,4 +128,11 @@ export async function generateTrackerData(): Promise<object> {
     throw new Error('Antwort liess sich nicht als JSON parsen.');
   }
   return parsed;
+}
+
+export async function generateForMessage(messageId: number): Promise<object> {
+  const data = await generateTrackerData(messageId);
+  setTrackerFor(messageId, data);
+  notifyUpdated();
+  return data;
 }

@@ -4,6 +4,7 @@ type Entry = Record<Language, string>;
 
 export const STRINGS: Record<string, Entry> = {
   'window.title': { de: 'Areko Tracker — Einstellungen', en: 'Areko Tracker — Settings' },
+  'window.open': { de: 'Einstellungen öffnen', en: 'Open settings' },
 
   'connection.profile': { de: 'Connection Profil', en: 'Connection Profile' },
   'connection.profile.placeholder': { de: '— Profil wählen —', en: '— Select profile —' },
@@ -100,4 +101,17 @@ export const STRINGS: Record<string, Entry> = {
   'test.heading': { de: 'Test', en: 'Test' },
   'test.run': { de: 'Test-Generierung (letzter Chat)', en: 'Test generation (latest chat)' },
   'test.running': { de: 'Generiere…', en: 'Generating…' },
+
+  'chat.tracker': { de: 'Tracker', en: 'Tracker' },
+  'chat.generate': { de: 'Tracker generieren', en: 'Generate tracker' },
+  'chat.regenerate': { de: 'Neu generieren', en: 'Regenerate' },
+  'chat.generating': { de: 'Generiere…', en: 'Generating…' },
+  'chat.delete': { de: 'Tracker löschen', en: 'Delete tracker' },
+
+  'panel.title': { de: 'Tracker-Panel', en: 'Tracker Panel' },
+  'panel.toggle': { de: 'Panel ein-/ausblenden', en: 'Toggle panel' },
+  'panel.noData': { de: 'Noch kein Tracker. Generiere einen unter einer Nachricht.', en: 'No tracker yet. Generate one under a message.' },
+  'panel.tab.general': { de: 'Allgemein', en: 'General' },
+  'panel.tab.player': { de: 'Spieler', en: 'Player' },
+  'panel.tab.npc': { de: 'NPCs', en: 'NPCs' },
 };

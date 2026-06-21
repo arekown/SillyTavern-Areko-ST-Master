@@ -78,4 +78,5 @@ export interface ExtensionSettings {
   imageGen: ImageGenSettings;
   lorebookExport: LorebookExportSettings;
   prompt: string;
+  panelOpen: boolean;
 }
