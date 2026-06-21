@@ -1,0 +1,43 @@
+.areko-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.areko-window {
+  width: min(960px, 92vw);
+  height: min(720px, 88vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--SmartThemeBlurTintColor, #1e1e24);
+  color: var(--SmartThemeBodyColor, #e8e8e8);
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15));
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
+  }
+
+  &__close {
+    cursor: pointer;
+    opacity: 0.7;
+    &:hover { opacity: 1; }
+  }
+
+  &__body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+  }
+}

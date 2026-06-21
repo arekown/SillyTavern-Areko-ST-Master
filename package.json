@@ -1,0 +1,37 @@
+{
+    "name": "sillytavern-areko-st-master",
+    "version": "0.1.0",
+    "description": "Areko ST Master - flexibler Daten-Tracker fuer SillyTavern",
+    "type": "module",
+    "scripts": {
+        "dev": "cross-env NODE_ENV=development sass src/styles/main.scss dist/style.css --source-map & cross-env NODE_ENV=development webpack --mode development --config webpack.config.cjs --watch",
+        "build": "cross-env NODE_ENV=production sass src/styles/main.scss dist/style.css --no-source-map && cross-env NODE_ENV=production webpack --mode production --config webpack.config.cjs",
+        "prettify": "prettier --write \"src/**/*.{ts,tsx,scss}\""
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/core": "^7.26.0",
+        "@babel/preset-env": "^7.26.0",
+        "@babel/preset-react": "^7.27.1",
+        "@babel/preset-typescript": "^7.26.0",
+        "@types/jquery": "^3.5.32",
+        "@types/node": "^22.13.1",
+        "@types/react": "^19.1.11",
+        "@types/react-dom": "^19.1.8",
+        "babel-loader": "^9.2.1",
+        "cross-env": "^7.0.3",
+        "prettier": "^3.4.2",
+        "sass": "^1.83.4",
+        "terser-webpack-plugin": "^5.3.10",
+        "typescript": "^5.7.3",
+        "webpack": "^5.97.1",
+        "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "fast-xml-parser": "^5.2.5",
+        "handlebars": "^4.7.8",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "sillytavern-utils-lib": "^1.0.64"
+    }
+}

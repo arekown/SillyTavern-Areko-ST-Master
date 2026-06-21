@@ -1,0 +1,12 @@
+{
+    "display_name": "Areko ST Master",
+    "loading_order": 300,
+    "requires": [],
+    "optional": [],
+    "js": "dist/index.js",
+    "css": "dist/style.css",
+    "author": "areko",
+    "version": "0.1.0",
+    "homePage": "https://github.com/arekown/SillyTavern-Areko-ST-Master",
+    "generate_interceptor": "arekoTrackerInterceptor"
+}
