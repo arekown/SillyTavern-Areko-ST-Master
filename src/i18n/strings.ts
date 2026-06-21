@@ -30,6 +30,26 @@ export const STRINGS: Record<string, Entry> = {
 
   'connection.language': { de: 'Sprache', en: 'Language' },
 
+  'builder.heading': { de: 'Schema-Builder', en: 'Schema Builder' },
+  'builder.empty': { de: 'Noch keine Felder. Leg unten welche an.', en: 'No fields yet. Add some below.' },
+  'builder.addField': { de: 'Feld hinzufügen', en: 'Add field' },
+  'builder.addChild': { de: 'Unterfeld hinzufügen', en: 'Add subfield' },
+  'builder.label': { de: 'Label', en: 'Label' },
+  'builder.key': { de: 'Key', en: 'Key' },
+  'builder.description': {
+    de: 'Beschreibung (Anweisung fürs LLM)',
+    en: 'Description (instruction for the LLM)',
+  },
+  'builder.required': { de: 'Pflichtfeld', en: 'Required' },
+  'builder.delete': { de: 'Löschen', en: 'Delete' },
+  'builder.preview': { de: 'Schema-Vorschau', en: 'Schema preview' },
+  'builder.type.string': { de: 'Text', en: 'Text' },
+  'builder.type.number': { de: 'Zahl', en: 'Number' },
+  'builder.type.boolean': { de: 'Ja/Nein', en: 'Yes/No' },
+  'builder.type.list': { de: 'Liste', en: 'List' },
+  'builder.type.group': { de: 'Gruppe', en: 'Group' },
+  'builder.type.objectList': { de: 'Objekt-Liste', en: 'Object list' },
+
   'test.heading': { de: 'Test', en: 'Test' },
   'test.run': { de: 'Test-Generierung (letzter Chat)', en: 'Test generation (latest chat)' },
   'test.running': { de: 'Generiere…', en: 'Generating…' },
