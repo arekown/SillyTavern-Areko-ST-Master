@@ -23,8 +23,8 @@ async function trigger(messageId: number): Promise<void> {
   finally { inFlight.delete(messageId); }
 }
 
-// Generierung haengt an der jeweils gerenderten Nachricht:
-// "Nur bei Antworten" -> KI-Nachricht; "Nur bei Eingaben" -> Nutzer-Nachricht.
+// Tracker entsteht immer NACH der gerenderten Nachricht:
+// "Nur bei Eingaben" -> Nutzer-Nachricht; "Nur bei Antworten" -> KI-Nachricht.
 export function wireAutoMode(): void {
   const ctx: any = SillyTavern.getContext();
   const es = ctx?.eventSource;
