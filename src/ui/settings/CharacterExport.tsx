@@ -25,28 +25,11 @@ export const CharacterExport: FC = () => {
   const update = (fn: (s: ExtensionSettings) => void) => { const s = settingsManager.getSettings(); fn(s); settingsManager.saveSettings(); forceUpdate(); };
   if (!preset) return null;
   const flat = flatten(preset.categories);
-  const lore = settings.lorebookExport.enabledFieldIds;
-  const toggleLore = (id: string, on: boolean) => update((s) => {
-    const set = new Set(s.lorebookExport.enabledFieldIds);
-    if (on) set.add(id); else set.delete(id);
-    s.lorebookExport.enabledFieldIds = Array.from(set);
-  });
 
   return (
     <div className="areko-charexport">
       <div className="areko-section-title">{t('export2.heading')}</div>
-      <div className="areko-field">
-        <label>{t('export2.lorebookFields')} <span className="areko-help" title={t('lore.helpLong')}>?</span></label>
-        <div className="areko-checklist">
-          {flat.length === 0 && <div className="areko-hint">{t('builder.empty')}</div>}
-          {flat.map((f) => (
-            <label key={f.id} className="areko-adv-check">
-              <input type="checkbox" checked={lore.includes(f.id)} onChange={(e) => toggleLore(f.id, e.target.checked)} />
-              <span>{f.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+
       <div className="areko-field">
         <label>{t('export2.imageField')}</label>
         <select className="text_pole" value={settings.imageGen.sourceFieldId} onChange={(e) => update((s) => { s.imageGen.sourceFieldId = e.target.value; })}>
@@ -54,6 +37,15 @@ export const CharacterExport: FC = () => {
           {flat.map((f) => (<option key={f.id} value={f.id}>{f.label}</option>))}
         </select>
         <span className="areko-hint">{t('export2.imageHint')}</span>
+      </div>
+
+      <div className="areko-field">
+        <label>{t('export2.loreField')} <span className="areko-help" title={t('lore.helpLong')}>?</span></label>
+        <select className="text_pole" value={settings.lorebookExport.sourceFieldId} onChange={(e) => update((s) => { s.lorebookExport.sourceFieldId = e.target.value; })}>
+          <option value="">{t('export2.allFields')}</option>
+          {flat.map((f) => (<option key={f.id} value={f.id}>{f.label}</option>))}
+        </select>
+        <span className="areko-hint">{t('export2.loreHint')}</span>
       </div>
     </div>
   );

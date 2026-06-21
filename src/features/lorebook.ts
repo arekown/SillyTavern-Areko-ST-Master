@@ -16,39 +16,58 @@ async function exec(cmd: string): Promise<string> {
   return String((res && (res.pipe ?? res)) ?? '').trim();
 }
 
-export async function getChatBook(): Promise<string> {
+function boundChatBook(): string {
+  const ctx: any = SillyTavern.getContext();
+  return ctx?.chatMetadata?.world_info || ctx?.chat_metadata?.world_info || '';
+}
+async function getOrCreateChatBook(): Promise<string> {
   const name = await exec('/getchatbook');
   if (!name) throw new Error('Konnte kein Chat-Lorebook ermitteln.');
   return name;
 }
-
-async function findEntryUid(book: string, name: string): Promise<string> {
-  let uid = await exec(`/findentry file="${book}" field=comment ${name}`);
-  if (!uid) uid = await exec(`/findentry file="${book}" field=key ${name}`);
-  return /^\d+$/.test(uid) ? uid : '';
+async function loadBook(book: string): Promise<any | null> {
+  const ctx: any = SillyTavern.getContext();
+  if (!book || typeof ctx.loadWorldInfo !== 'function') return null;
+  try { return await ctx.loadWorldInfo(book); } catch { return null; }
+}
+function entriesList(data: any): any[] {
+  const e = data?.entries; if (!e) return [];
+  return Array.isArray(e) ? e : Object.values(e);
+}
+function findEntryObj(data: any, name: string): any | null {
+  const n = norm(name);
+  return entriesList(data).find((e: any) => norm(e?.comment) === n || (Array.isArray(e?.key) && e.key.some((k: any) => norm(k) === n))) || null;
 }
 
-export async function lorebookEntryExists(name: string): Promise<boolean> {
-  try {
-    const book = await getChatBook();
-    return !!(await findEntryUid(book, name));
-  } catch {
-    return false;
+// Lesende Stapel-Pruefung (keine Slash-Commands, keine Toasts, legt kein Buch an).
+export async function lorebookExistsBatch(names: string[]): Promise<Record<string, boolean>> {
+  const out: Record<string, boolean> = {};
+  for (const n of names) out[n] = false;
+  const data = await loadBook(boundChatBook());
+  if (!data) return out;
+  const list = entriesList(data);
+  for (const name of names) {
+    const n = norm(name);
+    out[name] = list.some((e: any) => norm(e?.comment) === n || (Array.isArray(e?.key) && e.key.some((k: any) => norm(k) === n)));
   }
+  return out;
 }
 
-function pickFields(fields: FieldDef[], wanted: Set<string>, entry: any, into: Record<string, any>, prefix = ''): void {
+function findPath(fields: FieldDef[], id: string, acc: string[]): string[] | null {
   for (const f of fields) {
-    if (f.enabled === false) continue;
-    const label = prefix ? prefix + ' › ' + f.label : f.label;
-    if (f.type === 'group' || f.type === 'objectList') {
-      if (wanted.has(f.id)) into[label] = entry?.[f.key];
-      else if (f.children) pickFields(f.children, wanted, entry?.[f.key] ?? {}, into, label);
-    } else if (wanted.has(f.id)) {
-      into[label] = entry?.[f.key];
-    }
+    if (f.id === id) return [...acc, f.key];
+    if (f.children) { const r = findPath(f.children, id, [...acc, f.key]); if (r) return r; }
   }
+  return null;
 }
+function labelOf(fields: FieldDef[], id: string): string {
+  for (const f of fields) {
+    if (f.id === id) return f.label;
+    if (f.children) { const r = labelOf(f.children, id); if (r) return r; }
+  }
+  return id;
+}
+function readPath(obj: any, path: string[]): any { return path.reduce((o, k) => (o == null ? o : o[k]), obj); }
 
 function findCharEntry(name: string): { cat: Category; entry: any } | null {
   const s = settingsManager.getSettings();
@@ -65,16 +84,19 @@ function findCharEntry(name: string): { cat: Category; entry: any } | null {
   return null;
 }
 
-function selectedCharData(name: string): Record<string, any> {
+function sourceData(name: string): Record<string, any> {
   const s = settingsManager.getSettings();
-  const wanted = new Set(s.lorebookExport.enabledFieldIds ?? []);
   const found = findCharEntry(name);
-  const out: Record<string, any> = {};
-  if (found) {
-    if (wanted.size > 0) pickFields(found.cat.fields, wanted, found.entry, out);
-    else for (const f of found.cat.fields) out[f.label] = found.entry?.[f.key];
+  if (!found) return {};
+  const id = s.lorebookExport.sourceFieldId;
+  if (!id) {
+    const out: Record<string, any> = {};
+    for (const f of found.cat.fields) out[f.label] = found.entry?.[f.key];
+    return out;
   }
-  return out;
+  const path = findPath(found.cat.fields, id, []);
+  if (!path) return {};
+  return { [labelOf(found.cat.fields, id)]: readPath(found.entry, path) };
 }
 
 function extractJson(content: string): any {
@@ -90,30 +112,25 @@ export async function generateLorebookEntry(name: string): Promise<void> {
   if (!settings.profileId) throw new Error('Kein Connection-Profil gewaehlt.');
   const service = ctx?.ConnectionManagerRequestService;
   if (!service?.sendRequest) throw new Error('ConnectionManagerRequestService nicht verfuegbar.');
-
-  const book = await getChatBook();
-  const existingUid = await findEntryUid(book, name);
-  let existingContent = '';
-  let existingKeys = '';
-  if (existingUid) {
-    existingContent = await exec(`/getentryfield file="${book}" field=content ${existingUid}`);
-    existingKeys = await exec(`/getentryfield file="${book}" field=key ${existingUid}`);
+  if (typeof ctx.loadWorldInfo !== 'function' || typeof ctx.saveWorldInfo !== 'function') {
+    throw new Error('World-Info-API (loadWorldInfo/saveWorldInfo) nicht verfuegbar.');
   }
 
-  const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
-  const endIndex = chat.length - 1;
-  const context = await buildContextMessages(endIndex);
+  const book = await getOrCreateChatBook();
+  const pre = await loadBook(book);
+  const existing = pre ? findEntryObj(pre, name) : null;
 
-  const charData = selectedCharData(name);
-  const dataBlock =
-    'Structured data for "' + name + '" (player is "' + getPlayerName() + '"):\n```json\n' +
-    JSON.stringify(charData, null, 2) + '\n```';
+  const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
+  const context = await buildContextMessages(chat.length - 1);
+
+  const dataBlock = 'Structured data for "' + name + '" (player is "' + getPlayerName() + '"):\n```json\n' +
+    JSON.stringify(sourceData(name), null, 2) + '\n```';
   context.push({ role: 'user', content: dataBlock });
 
-  if (existingUid) {
-    const ex = 'An existing lorebook entry already exists. Keys: ' + (existingKeys || '(none)') +
-      '\nExisting content:\n"""\n' + existingContent + '\n"""\nUpdate and extend it; do not discard established facts.';
-    context.push({ role: 'user', content: ex });
+  if (existing) {
+    const keysStr = Array.isArray(existing.key) ? existing.key.join(', ') : '';
+    context.push({ role: 'user', content: 'An existing lorebook entry already exists. Keys: ' + (keysStr || '(none)') +
+      '\nExisting content:\n"""\n' + String(existing.content ?? '') + '\n"""\nUpdate and extend it; do not discard established facts.' });
   }
 
   const prompt = renderTemplate(settings.lorebookPrompt || DEFAULT_LOREBOOK_PROMPT, { name, language: languageWord() });
@@ -130,18 +147,20 @@ export async function generateLorebookEntry(name: string): Promise<void> {
   if (!keys.some((k) => norm(k) === norm(name))) keys.unshift(name);
   keys = Array.from(new Set(keys)).slice(0, 12);
 
-  await exec('/setvar key=arekoLoreContent ' + JSON.stringify(entryText));
-
-  let uid = existingUid;
-  if (!uid) {
-    uid = await exec(`/createentry file="${book}" key="${keys.join(',')}" {{getvar::arekoLoreContent}}`);
-    if (!/^\d+$/.test(uid)) uid = await findEntryUid(book, name);
-    if (uid) await exec(`/setentryfield file="${book}" uid=${uid} field=comment ${name}`);
-  } else {
-    await exec(`/setentryfield file="${book}" uid=${uid} field=key ${keys.join(',')}`);
-    await exec(`/setentryfield file="${book}" uid=${uid} field=content {{getvar::arekoLoreContent}}`);
+  // Schreiben ueber die World-Info-API -> kein Slash-Escaping fuer langen Text.
+  let data = await ctx.loadWorldInfo(book);
+  if (!data || !data.entries) data = { entries: {} };
+  let entry = findEntryObj(data, name);
+  if (!entry) {
+    const safeKey = name.replace(/["\\,]/g, ' ').trim() || name;
+    const uidStr = await exec(`/createentry file="${book}" key="${safeKey}"`);
+    data = await ctx.loadWorldInfo(book);
+    const uid = parseInt(uidStr, 10);
+    entry = (data?.entries && (data.entries[uid] ?? data.entries[String(uid)])) || findEntryObj(data, name) || entriesList(data).slice(-1)[0] || null;
   }
-  await exec('/flushvar arekoLoreContent');
-
-  if (!uid) throw new Error('Eintrag konnte nicht angelegt werden.');
+  if (!entry) throw new Error('Eintrag konnte nicht angelegt werden.');
+  entry.key = keys;
+  entry.comment = name;
+  entry.content = entryText;
+  await ctx.saveWorldInfo(book, data, true);
 }

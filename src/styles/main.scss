@@ -173,3 +173,13 @@
   border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.25));
   &:hover { opacity: 1; }
 }
+
+/* ---------- Lorebook-Button (volle Breite, eigene Zeile) ---------- */
+.areko-lorebar { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.areko-lorebtn {
+  flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; font-size: 0.82rem; padding: 7px 10px; border-radius: 6px;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15));
+  background: rgba(255,255,255,0.03);
+  &:hover { background: rgba(255,255,255,0.1); }
+}

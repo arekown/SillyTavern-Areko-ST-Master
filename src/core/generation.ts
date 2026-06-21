@@ -5,13 +5,13 @@ import { setTrackerFor, notifyUpdated, recentTrackerBlocks } from './tracker-sto
 import { renderTemplate } from './prompts';
 import { buildPrompt } from 'sillytavern-utils-lib';
 
-interface Msg { role: string; content: string; }
+export interface Msg { role: string; content: string; }
 
 function languageWord(): string {
   return settingsManager.getSettings().language === 'en' ? 'English' : 'German';
 }
 
-async function buildContext(upToIndex: number): Promise<Msg[]> {
+export async function buildContextMessages(upToIndex: number): Promise<Msg[]> {
   const ctx: any = SillyTavern.getContext();
   const settings = settingsManager.getSettings();
   const profiles = ctx?.extensionSettings?.connectionManager?.profiles ?? [];
@@ -19,7 +19,6 @@ async function buildContext(upToIndex: number): Promise<Msg[]> {
   const apiMap = profile?.api ? ctx?.CONNECT_API_MAP?.[profile.api] : null;
   const includeLastX = settings.includeLastXMessages ?? 0;
   const start = includeLastX > 0 ? Math.max(0, upToIndex - includeLastX) : 0;
-
   try {
     const res: any = await buildPrompt(apiMap?.selected, {
       messageIndexesBetween: { end: upToIndex, start },
@@ -84,7 +83,7 @@ export async function generateTrackerData(upToIndex?: number): Promise<object> {
   const endIndex = typeof upToIndex === 'number' ? upToIndex : chat.length - 1;
   if (endIndex < 0) throw new Error('Kein Chat-Kontext vorhanden.');
 
-  const context = await buildContext(endIndex);
+  const context = await buildContextMessages(endIndex);
 
   const count = settings.includeLastXTrackers ?? 1;
   for (const b of recentTrackerBlocks(endIndex - 1, count)) context.push({ role: 'user', content: b });

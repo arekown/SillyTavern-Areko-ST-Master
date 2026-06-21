@@ -95,7 +95,7 @@ export const defaultSettings: ExtensionSettings = {
   activePreset: 'default_de',
   presets: { default_de: buildPreset('Default DE', 'de'), default_en: buildPreset('Default EN', 'en') },
   imageGen: { enabled: true, sourceFieldId: 'cf_appearance' },
-  lorebookExport: { enabledFieldIds: [] },
+  lorebookExport: { sourceFieldId: '' },
   characterImages: {},
   prompt: DEFAULT_TRACKER_PROMPT,
   promptJson: DEFAULT_JSON_PROMPT,

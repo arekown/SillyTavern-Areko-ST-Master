@@ -2,13 +2,23 @@ import { FC, useEffect, useState, useCallback, useRef, useLayoutEffect } from 'r
 import { createPortal } from 'react-dom';
 import { settingsManager } from '../../core/settings-manager';
 import { getLatestTracker, getPlayerName } from '../../core/tracker-store';
-import { renderGeneral, renderCharacters } from '../../core/render-html';
+import { renderGeneral, renderCharacters, loreExists } from '../../core/render-html';
+import { categoryKey } from '../../core/schema-builder';
 import { getCharImage, generateCharImage, setCharImage, deleteCharImage } from '../../features/image-gen';
-import { generateLorebookEntry, lorebookEntryExists } from '../../features/lorebook';
-import { loreExists } from '../../core/render-html';
+import { generateLorebookEntry, lorebookExistsBatch } from '../../features/lorebook';
 import { t } from '../../i18n';
 
 type TabKey = 'general' | 'player' | 'npc';
+
+function charNames(cats: any[], data: any): string[] {
+  const names: string[] = [];
+  for (const cat of cats) {
+    if (cat.scope !== 'perCharacter') continue;
+    const arr = data?.[categoryKey(cat)];
+    if (Array.isArray(arr)) for (const e of arr) { const n = e?.character ?? e?.name; if (n) names.push(String(n)); }
+  }
+  return Array.from(new Set(names));
+}
 
 export const Panel: FC = () => {
   const [tab, setTab] = useState<TabKey>('general');
@@ -38,9 +48,7 @@ export const Panel: FC = () => {
     if (!el) return;
     const onToggle = (e: Event) => {
       const d = e.target as HTMLElement;
-      if (d instanceof HTMLDetailsElement && d.hasAttribute('data-areko-key')) {
-        openState.current.set(d.getAttribute('data-areko-key')!, d.open);
-      }
+      if (d instanceof HTMLDetailsElement && d.hasAttribute('data-areko-key')) openState.current.set(d.getAttribute('data-areko-key')!, d.open);
     };
     el.addEventListener('toggle', onToggle, true);
     return () => el.removeEventListener('toggle', onToggle, true);
@@ -53,34 +61,30 @@ export const Panel: FC = () => {
   const cats = settings.presets[settings.activePreset]?.categories ?? [];
   const data = getLatestTracker();
   const player = getPlayerName();
+  const names = charNames(cats, data);
+
+  // Existenz der Lorebook-Eintraege nur pruefen, wenn sich die Namensliste aendert (kein Spam).
+  const namesKey = names.join('|');
+  useEffect(() => {
+    if (names.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await lorebookExistsBatch(names);
+        let changed = false;
+        for (const n of names) if (loreExists[n] !== res[n]) { loreExists[n] = res[n]; changed = true; }
+        if (!cancelled && changed) refresh();
+      } catch { /* still */ }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namesKey]);
 
   let html = '';
   if (!data) html = `<div class="areko-empty">${t('panel.noData')}</div>`;
   else if (tab === 'general') html = renderGeneral(cats, data);
   else if (tab === 'player') html = renderCharacters(cats, data, 'player', player, { imageOf: getCharImage });
   else html = renderCharacters(cats, data, 'npc', player, { imageOf: getCharImage });
-
-  const charNames = useRef<string[]>([]);
-  useEffect(() => {
-    const names = new Set<string>();
-    for (const cat of cats) {
-      if (cat.scope !== 'perCharacter') continue;
-      const arr = (data as any)?.[cat.id ? undefined as any : undefined as any];
-    }
-    // Namen aus den gerenderten Karten lesen
-    contentRef.current?.querySelectorAll('[data-areko-action="lorebook"]').forEach((b) => {
-      const nm = b.getAttribute('data-areko-name'); if (nm) names.add(nm);
-    });
-    let cancelled = false;
-    (async () => {
-      let changed = false;
-      for (const nm of names) {
-        try { const ex = await lorebookEntryExists(nm); if (loreExists[nm] !== ex) { loreExists[nm] = ex; changed = true; } } catch {}
-      }
-      if (!cancelled && changed) refresh();
-    })();
-    return () => { cancelled = true; };
-  });
 
   useLayoutEffect(() => {
     const el = contentRef.current;
@@ -103,11 +107,8 @@ export const Panel: FC = () => {
     if (action === 'lorebook') {
       if (busyLore) return;
       setBusyLore(name);
-      try {
-        await generateLorebookEntry(name);
-        loreExists[name] = true;
-        window.alert(t('lore.done'));
-      } catch (err: any) { window.alert('Lorebook-Fehler: ' + (err?.message ?? String(err))); }
+      try { await generateLorebookEntry(name); loreExists[name] = true; window.alert(t('lore.done')); }
+      catch (err: any) { window.alert('Lorebook-Fehler: ' + (err?.message ?? String(err))); }
       finally { setBusyLore(null); refresh(); }
       return;
     }
@@ -149,10 +150,7 @@ export const Panel: FC = () => {
         </div>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFile} />
       </div>
-      {lightbox && createPortal(
-        <div className="areko-lightbox" onClick={() => setLightbox(null)}><img src={lightbox} alt="" /></div>,
-        document.body,
-      )}
+      {lightbox && createPortal(<div className="areko-lightbox" onClick={() => setLightbox(null)}><img src={lightbox} alt="" /></div>, document.body)}
     </div>
   );
 };

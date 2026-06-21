@@ -15,7 +15,7 @@ export interface Category { id: string; name: string; scope?: CategoryScope; col
 export interface CharacterRules { loopOverCharacters: boolean; excludedCharacters: string[]; }
 export interface Preset { name: string; categories: Category[]; characterRules: CharacterRules; }
 export interface ImageGenSettings { enabled: boolean; sourceFieldId: string; }
-export interface LorebookExportSettings { enabledFieldIds: string[]; }
+export interface LorebookExportSettings { sourceFieldId: string; }
 
 export interface ExtensionSettings {
   version: string;
@@ -33,5 +33,6 @@ export interface ExtensionSettings {
   prompt: string;
   promptJson: string;
   imagePrompt: string;
+  lorebookPrompt: string;
   panelOpen: boolean;
 }

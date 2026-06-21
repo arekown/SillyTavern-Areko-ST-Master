@@ -2,7 +2,7 @@ import { Category, FieldDef } from '../config/types';
 import { categoryKey } from './schema-builder';
 import { t } from '../i18n';
 
-// Vom Panel gepflegter Cache: Charaktername -> hat bereits einen Lorebook-Eintrag
+// Vom Panel gepflegter Cache: Charaktername -> hat bereits einen Lorebook-Eintrag.
 export const loreExists: Record<string, boolean> = {};
 
 function esc(s: any): string {
@@ -60,8 +60,8 @@ export function renderFields(fields: FieldDef[], data: any): string {
   return (fields || []).map((f) => renderField(f, data?.[f.key])).filter(Boolean).join('');
 }
 
-// Buttons links in zwei Reihen (1: Generieren+Hochladen, 2: Löschen).
-function actionButtons(name: string): string {
+// Bild-Buttons links (Reihe 1: Generieren+Hochladen, Reihe 2: Löschen).
+function imageButtons(name: string): string {
   const n = esc(name);
   return `<div class="areko-charactions">` +
     `<div class="areko-charactions__row">` +
@@ -71,26 +71,31 @@ function actionButtons(name: string): string {
     `<div class="areko-charactions__row">` +
       `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
     `</div>` +
-    `<div class="areko-charactions__row areko-lorerow">` +
-      `<span class="areko-lorebtn" data-areko-action="lorebook" data-areko-name="${n}" title="${esc(t('lore.help'))}">` +
-        `<i class="fa-solid ${loreExists[name] ? 'fa-book-bookmark' : 'fa-book-medical'}"></i> ` +
-        `${esc(loreExists[name] ? t('lore.update') : t('lore.create'))}` +
-        `<span class="areko-help" data-areko-action="lorehelp" title="${esc(t('lore.help'))}">?</span>` +
-      `</span>` +
-    `</div>` +
+  `</div>`;
+}
+function lorebookBar(name: string): string {
+  const n = esc(name);
+  const exists = loreExists[name];
+  const label = exists ? t('lore.update') : t('lore.create');
+  const icon = exists ? 'fa-book-bookmark' : 'fa-book-medical';
+  return `<div class="areko-lorebar">` +
+    `<span class="areko-lorebtn" data-areko-action="lorebook" data-areko-name="${n}"><i class="fa-solid ${icon}"></i> ${esc(label)}</span>` +
+    `<span class="areko-help" data-areko-action="lorehelp" title="${esc(t('lore.help'))}">?</span>` +
   `</div>`;
 }
 function characterCard(fields: FieldDef[], entry: any, opts: CardOpts): string {
   const name = entry?.character ?? entry?.name ?? '?';
   const inner = renderFields(fields, entry ?? {});
   let head = '';
+  let lore = '';
   if (opts.panelActions) {
     const url = opts.imageOf ? opts.imageOf(name) : undefined;
     const img = url ? `<img class="areko-charimg" src="${esc(url)}" alt="${esc(name)}">` : `<div class="areko-charimg areko-charimg--empty">${esc(t('panel.img.none'))}</div>`;
-    head = `<div class="areko-charimg-wrap">${actionButtons(name)}${img}</div>`;
+    head = `<div class="areko-charimg-wrap">${imageButtons(name)}${img}</div>`;
+    lore = lorebookBar(name);
   }
   const key = 'char:' + name;
-  return `<details class="areko-charcard" data-areko-key="${esc(key)}"${opts.open ? ' open' : ''}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}</details>`;
+  return `<details class="areko-charcard" data-areko-key="${esc(key)}"${opts.open ? ' open' : ''}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}${lore}</details>`;
 }
 export function renderGeneral(categories: Category[], data: any): string {
   const out: string[] = [];
