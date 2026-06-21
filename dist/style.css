@@ -40,3 +40,27 @@
   overflow-y: auto;
   flex: 1;
 }
+
+.areko-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.areko-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.areko-field label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.areko-hint {
+  font-weight: 400;
+  opacity: 0.6;
+  font-size: 0.78rem;
+  margin-left: 6px;
+}

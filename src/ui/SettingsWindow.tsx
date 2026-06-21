@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { createRoot, Root } from 'react-dom/client';
+import { ConnectionTab } from './settings/ConnectionTab';
 
 let root: Root | null = null;
 let container: HTMLElement | null = null;
@@ -13,7 +14,7 @@ const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="fa-solid fa-xmark areko-window__close" onClick={onClose}></div>
         </div>
         <div className="areko-window__body">
-          <p>Geruest laeuft. Hier kommen Connection-Tab, Schema-Builder, Layout-Editor und Export rein.</p>
+          <ConnectionTab />
         </div>
       </div>
     </div>

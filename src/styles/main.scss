@@ -32,7 +32,9 @@
   &__close {
     cursor: pointer;
     opacity: 0.7;
-    &:hover { opacity: 1; }
+    &:hover {
+      opacity: 1;
+    }
   }
 
   &__body {
@@ -40,4 +42,29 @@
     overflow-y: auto;
     flex: 1;
   }
+}
+
+.areko-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.areko-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+}
+
+.areko-hint {
+  font-weight: 400;
+  opacity: 0.6;
+  font-size: 0.78rem;
+  margin-left: 6px;
 }
