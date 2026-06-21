@@ -1,12 +1,28 @@
 import type { FC } from 'react';
-import { STConnectionProfileSelect } from 'sillytavern-utils-lib/components/react';
 import { settingsManager } from '../../core/settings-manager';
 import { AutoMode, Timing, Language, ExtensionSettings } from '../../config/types';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 
+interface ConnectionProfile {
+  id: string;
+  name?: string;
+}
+
+// Connection-Profile direkt aus dem ST-Kontext lesen (kein Lib-Component).
+function getConnectionProfiles(): ConnectionProfile[] {
+  try {
+    const ctx: any = SillyTavern.getContext();
+    const profiles = ctx?.extensionSettings?.connectionManager?.profiles;
+    return Array.isArray(profiles) ? profiles : [];
+  } catch {
+    return [];
+  }
+}
+
 export const ConnectionTab: FC = () => {
   const forceUpdate = useForceUpdate();
   const settings = settingsManager.getSettings();
+  const profiles = getConnectionProfiles();
 
   const update = (fn: (s: ExtensionSettings) => void) => {
     const s = settingsManager.getSettings();
@@ -21,14 +37,27 @@ export const ConnectionTab: FC = () => {
     <div className="areko-tab">
       <div className="areko-field">
         <label>Connection Profil</label>
-        <STConnectionProfileSelect
-          initialSelectedProfileId={settings.profileId}
-          onChange={(profile) =>
+        <select
+          className="text_pole"
+          value={settings.profileId}
+          onChange={(e) =>
             update((s) => {
-              s.profileId = profile?.id ?? '';
+              s.profileId = e.target.value;
             })
           }
-        />
+        >
+          <option value="">— Profil wählen —</option>
+          {profiles.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name ?? p.id}
+            </option>
+          ))}
+        </select>
+        {profiles.length === 0 && (
+          <span className="areko-hint">
+            Keine Profile gefunden. Lege im ST-Connection-Manager eins an.
+          </span>
+        )}
       </div>
 
       <div className="areko-field">
