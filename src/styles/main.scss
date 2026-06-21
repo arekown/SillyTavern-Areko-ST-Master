@@ -32,9 +32,7 @@
   &__close {
     cursor: pointer;
     opacity: 0.7;
-    &:hover {
-      opacity: 1;
-    }
+    &:hover { opacity: 1; }
   }
 
   &__body {
@@ -44,30 +42,16 @@
   }
 }
 
-.areko-tab {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.areko-tab { display: flex; flex-direction: column; gap: 14px; }
 
 .areko-field {
   display: flex;
   flex-direction: column;
   gap: 5px;
-
-  label {
-    font-weight: 600;
-    font-size: 0.85rem;
-    opacity: 0.85;
-  }
+  label { font-weight: 600; font-size: 0.85rem; opacity: 0.85; }
 }
 
-.areko-hint {
-  font-weight: 400;
-  opacity: 0.6;
-  font-size: 0.78rem;
-  margin-left: 6px;
-}
+.areko-hint { font-weight: 400; opacity: 0.6; font-size: 0.78rem; }
 
 .areko-divider {
   border: none;
@@ -81,37 +65,60 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   opacity: 0.7;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
-/* ---------- Schema-Builder ---------- */
-
-.areko-builder {
+/* ---------- Preset-Leiste ---------- */
+.areko-presetbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 
-  &__add {
-    align-self: flex-start;
+  label { font-weight: 600; font-size: 0.85rem; }
+  &__select { flex: 1 1 160px; }
+  &__btns { display: flex; gap: 4px; }
+  &__icon {
     cursor: pointer;
-    margin-top: 6px;
+    opacity: 0.7;
+    padding: 6px;
+    border-radius: 6px;
+    &:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
   }
+  &__del:hover { color: #e06c75; }
+}
 
-  &__previewtoggle {
-    cursor: pointer;
-    opacity: 0.75;
-    font-size: 0.82rem;
-    margin-top: 10px;
+/* ---------- Kategorie ---------- */
+.areko-cat {
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.14));
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+
+  &.is-hidden { opacity: 0.5; }
+
+  &__head {
     display: flex;
     align-items: center;
     gap: 6px;
-
-    &:hover {
-      opacity: 1;
-    }
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.04);
   }
+  &__toggle { cursor: pointer; opacity: 0.7; width: 16px; text-align: center; }
+  &__name { flex: 1 1 auto; font-weight: 600; }
+  &__icon {
+    cursor: pointer;
+    opacity: 0.65;
+    padding: 4px;
+    &:hover { opacity: 1; }
+  }
+  &__del:hover { color: #e06c75; }
+  &__body { padding: 8px; }
+  &__addfield { cursor: pointer; margin-top: 4px; font-size: 0.82rem; }
 }
 
+/* ---------- Feld-Zeile ---------- */
 .areko-fieldrow {
   border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.1));
   border-radius: 8px;
@@ -119,99 +126,95 @@
   margin-bottom: 6px;
   background: rgba(255, 255, 255, 0.02);
 
-  &__head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  &.is-disabled { opacity: 0.5; }
 
-  &__toggle,
-  &__bullet {
-    width: 16px;
-    text-align: center;
-    cursor: pointer;
-    opacity: 0.7;
-    flex: 0 0 auto;
-  }
-
-  &__bullet {
-    cursor: default;
-  }
-
-  &__label {
-    flex: 2 1 0;
-    min-width: 80px;
-  }
-
-  &__key {
-    flex: 1 1 0;
-    min-width: 60px;
-    font-family: monospace;
-  }
-
-  &__type,
-  &__itemtype {
-    flex: 0 0 auto;
-    width: auto;
-  }
-
-  &__req {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    margin: 0;
-  }
-
-  &__del {
+  &__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  &__toggle, &__bullet { width: 16px; text-align: center; cursor: pointer; opacity: 0.7; flex: 0 0 auto; }
+  &__bullet { cursor: default; }
+  &__label { flex: 2 1 80px; min-width: 70px; }
+  &__key { flex: 1 1 60px; min-width: 55px; font-family: monospace; }
+  &__type, &__itemtype { flex: 0 0 auto; width: auto; }
+  &__req { flex: 0 0 auto; display: flex; align-items: center; margin: 0; }
+  &__icon {
     flex: 0 0 auto;
     cursor: pointer;
     opacity: 0.6;
     padding: 4px;
-
-    &:hover {
-      opacity: 1;
-      color: #e06c75;
-    }
+    &:hover { opacity: 1; }
+    &.is-active { opacity: 1; color: var(--SmartThemeQuoteColor, #88c0d0); }
   }
-
-  &__desc {
-    margin-top: 6px;
-    width: 100%;
-    font-size: 0.82rem;
-    opacity: 0.9;
-  }
-
+  &__del { flex: 0 0 auto; cursor: pointer; opacity: 0.6; padding: 4px; &:hover { opacity: 1; color: #e06c75; } }
+  &__desc { margin-top: 6px; width: 100%; font-size: 0.82rem; opacity: 0.9; }
   &__children {
     margin-top: 8px;
     padding-left: 8px;
     border-left: 2px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
   }
+  &__addchild { cursor: pointer; margin-top: 4px; font-size: 0.8rem; }
 
-  &__addchild {
+  &__adv {
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.areko-adv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  label { font-size: 0.78rem; opacity: 0.8; }
+}
+.areko-adv-row { display: flex; gap: 10px; .areko-adv-item { flex: 1; } }
+.areko-adv-check { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; cursor: pointer; }
+
+/* ---------- Charaktere / Export ---------- */
+.areko-charexport { margin-top: 14px; }
+.areko-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* ---------- Validierung ---------- */
+.areko-issues {
+  margin-top: 12px;
+  &__item { color: #e5c07b; font-size: 0.82rem; margin-bottom: 3px; }
+}
+
+/* ---------- Builder allgemein ---------- */
+.areko-builder {
+  display: flex;
+  flex-direction: column;
+  &__add { align-self: flex-start; cursor: pointer; margin-top: 4px; }
+  &__previewtoggle {
     cursor: pointer;
-    margin-top: 4px;
-    font-size: 0.8rem;
+    opacity: 0.75;
+    font-size: 0.82rem;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    &:hover { opacity: 1; }
   }
 }
 
 /* ---------- Test ---------- */
-
 .areko-test {
   display: flex;
   flex-direction: column;
   gap: 10px;
-
-  &__btn {
-    align-self: flex-start;
-    cursor: pointer;
-  }
-
-  &__error {
-    color: #e06c75;
-    font-size: 0.82rem;
-    white-space: pre-wrap;
-  }
-
+  &__btn { align-self: flex-start; cursor: pointer; }
+  &__error { color: #e06c75; font-size: 0.82rem; white-space: pre-wrap; }
   &__result {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));

@@ -1,18 +1,40 @@
 import { ExtensionSettings, AutoMode, Timing, Preset } from './types';
 import { VERSION } from './constants';
 
-const defaultPreset: Preset = {
-  name: 'Default',
-  fields: [
-    { id: 'f_time', key: 'time', label: 'Zeit', type: 'string', description: 'Aktuelle Uhrzeit und Datum der Szene', required: true },
-    { id: 'f_location', key: 'location', label: 'Ort', type: 'string', description: 'Aktueller Ort der Szene', required: true },
-  ],
-  layout: [
-    { fieldId: 'f_time', order: 0 },
-    { fieldId: 'f_location', order: 1 },
-  ],
-  characterRules: { loopOverCharacters: false, excludedCharacters: [] },
-};
+export function makeDefaultPreset(name = 'Default'): Preset {
+  return {
+    name,
+    categories: [
+      {
+        id: 'c_scene',
+        name: 'Szene',
+        collapsed: false,
+        hidden: false,
+        fields: [
+          {
+            id: 'f_time',
+            key: 'time',
+            label: 'Zeit',
+            type: 'string',
+            description: 'Aktuelle Uhrzeit und Datum der Szene',
+            required: true,
+            enabled: true,
+          },
+          {
+            id: 'f_location',
+            key: 'location',
+            label: 'Ort',
+            type: 'string',
+            description: 'Aktueller Ort der Szene',
+            required: true,
+            enabled: true,
+          },
+        ],
+      },
+    ],
+    characterRules: { loopOverCharacters: false, excludedCharacters: [] },
+  };
+}
 
 export const defaultSettings: ExtensionSettings = {
   version: VERSION,
@@ -22,8 +44,8 @@ export const defaultSettings: ExtensionSettings = {
   language: 'de',
   maxResponseToken: 16000,
   activePreset: 'default',
-  presets: { default: defaultPreset },
-  imageGen: { enabled: false },
+  presets: { default: makeDefaultPreset() },
+  imageGen: { enabled: false, sourceFieldId: '' },
   lorebookExport: { enabledFieldIds: [] },
   prompt: '',
 };

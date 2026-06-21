@@ -8,7 +8,6 @@ interface ChatMsg {
   content: string;
 }
 
-// Letzte N Nachrichten aus dem Chat als Kontext einsammeln.
 function gatherContext(maxMessages = 6): ChatMsg[] {
   const ctx: any = SillyTavern.getContext();
   const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
@@ -21,7 +20,6 @@ function gatherContext(maxMessages = 6): ChatMsg[] {
     .filter((m: ChatMsg) => m.content.length > 0);
 }
 
-// Anweisung (Schema + Beispiel + Sprachregel) als letzten User-Turn.
 function buildInstruction(schema: any, language: Language): string {
   const example = schemaToExample(schema, 'json');
   const schemaStr = JSON.stringify(schema, null, 2);
@@ -63,7 +61,6 @@ function buildInstruction(schema: any, language: Language): string {
   ].join('\n');
 }
 
-// Extrahiert das JSON aus der Modell-Antwort (mit oder ohne Codeblock).
 function extractJson(content: string): any {
   let text = content.trim();
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -71,8 +68,6 @@ function extractJson(content: string): any {
   return JSON.parse(text);
 }
 
-// Kern: generiert einen Tracker und gibt das geparste JSON zurueck.
-// Beruehrt NICHTS am DOM — reine Pipeline (Profil -> Modell -> Parsen).
 export async function generateTrackerData(): Promise<object> {
   const ctx: any = SillyTavern.getContext();
   const settings = settingsManager.getSettings();
@@ -89,17 +84,17 @@ export async function generateTrackerData(): Promise<object> {
   const preset = settings.presets[settings.activePreset];
   if (!preset) throw new Error('Kein aktives Preset gefunden.');
 
-  const schema = buildJsonSchema(preset.fields, preset.name || 'Tracker');
+  const schema = buildJsonSchema(preset.categories ?? [], preset.name || 'Tracker');
+  if (!schema.properties || Object.keys(schema.properties).length === 0) {
+    throw new Error('Das aktive Preset hat keine aktiven Felder.');
+  }
 
   const context = gatherContext(6);
   if (context.length === 0) {
     throw new Error('Kein Chat-Kontext vorhanden. Schreib erst ein paar Nachrichten.');
   }
 
-  const messages: ChatMsg[] = [
-    ...context,
-    { role: 'user', content: buildInstruction(schema, settings.language) },
-  ];
+  const messages: ChatMsg[] = [...context, { role: 'user', content: buildInstruction(schema, settings.language) }];
 
   const res: any = await service.sendRequest(settings.profileId, messages, settings.maxResponseToken);
   const content: string = typeof res === 'string' ? res : res?.content ?? '';
