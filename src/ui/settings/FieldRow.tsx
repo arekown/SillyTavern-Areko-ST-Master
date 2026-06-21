@@ -1,11 +1,12 @@
 import { FC, useState } from 'react';
-import { FieldDef, FieldType, DisplayStyle, Category } from '../../config/types';
+import { FieldDef, FieldType, DisplayStyle, AppliesTo, Category } from '../../config/types';
 import { sanitizeKey } from '../../core/field-ops';
 import { t } from '../../i18n';
 
 interface Props {
   field: FieldDef;
   depth: number;
+  perCharacter?: boolean;
   categories?: Category[];
   currentCatId?: string;
   onUpdate: (id: string, fn: (f: FieldDef) => void) => void;
@@ -20,12 +21,13 @@ const ITEM_TYPES: FieldType[] = ['string', 'number', 'boolean'];
 const DISPLAYS: DisplayStyle[] = ['text', 'chip', 'badge', 'bar'];
 
 export const FieldRow: FC<Props> = (props) => {
-  const { field, depth, categories, currentCatId, onUpdate, onDelete, onAddChild, onMove, onMoveToCategory } = props;
+  const { field, depth, perCharacter, categories, currentCatId, onUpdate, onDelete, onAddChild, onMove, onMoveToCategory } = props;
   const [collapsed, setCollapsed] = useState(false);
   const [showAdv, setShowAdv] = useState(false);
   const hasChildren = field.type === 'group' || field.type === 'objectList';
   const isPrimitive = field.type === 'string' || field.type === 'number' || field.type === 'boolean';
   const disabled = field.enabled === false;
+  const showApplies = !!perCharacter && depth === 0;
 
   return (
     <div className={'areko-fieldrow' + (disabled ? ' is-disabled' : '')} style={{ marginLeft: depth * 14 }}>
@@ -103,6 +105,22 @@ export const FieldRow: FC<Props> = (props) => {
         placeholder={t('builder.description')}
         onChange={(e) => onUpdate(field.id, (f) => { f.description = e.target.value; })}
       />
+
+      {showApplies && (
+        <div className="areko-fieldrow__applies">
+          <label>{t('builder.appliesTo')}</label>
+          <select
+            className="text_pole"
+            style={{ width: 'auto' }}
+            value={field.appliesTo ?? 'all'}
+            onChange={(e) => onUpdate(field.id, (f) => { f.appliesTo = e.target.value as AppliesTo; })}
+          >
+            <option value="all">{t('appliesTo.all')}</option>
+            <option value="npc">{t('appliesTo.npc')}</option>
+            <option value="player">{t('appliesTo.player')}</option>
+          </select>
+        </div>
+      )}
 
       {showAdv && (
         <div className="areko-fieldrow__adv">

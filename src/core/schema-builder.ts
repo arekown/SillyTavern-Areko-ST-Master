@@ -1,4 +1,4 @@
-import { Category, FieldDef } from '../config/types';
+import { Category, FieldDef, AppliesTo } from '../config/types';
 
 function coerce(field: FieldDef, raw: string): any {
   if (field.type === 'number') {
@@ -69,12 +69,41 @@ function requiredKeys(children: FieldDef[]): string[] {
     .map((c) => c.key);
 }
 
+function appliesHint(appliesTo?: AppliesTo): string {
+  switch (appliesTo) {
+    case 'npc':
+      return ' (nur fuer NPCs ausfuellen, beim Spieler leer lassen)';
+    case 'player':
+      return ' (nur fuer den Spieler-Charakter ausfuellen, bei NPCs leer lassen)';
+    default:
+      return '';
+  }
+}
+
+// Pro-Charakter-Kategorie: Felder bekommen "Gilt fuer"-Hinweise in der Beschreibung.
+function childrenToPropsPerChar(children: FieldDef[]): Record<string, any> {
+  const props: Record<string, any> = {};
+  for (const c of enabledFields(children)) {
+    const s = fieldToSchema(c);
+    const hint = appliesHint(c.appliesTo);
+    if (hint) s.description = (s.description ?? '') + hint;
+    props[c.key] = s;
+  }
+  return props;
+}
+
+function requiredKeysPerChar(children: FieldDef[]): string[] {
+  // Nur Felder, die fuer ALLE gelten, koennen global "required" sein.
+  return enabledFields(children)
+    .filter((c) => c.required && (c.appliesTo ?? 'all') === 'all')
+    .map((c) => c.key);
+}
+
 function sanitizeKey(raw: string): string {
   const k = raw.trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
   return k || 'category';
 }
 
-// Jede sichtbare Kategorie wird ein verschachteltes Objekt im Schema.
 export function buildJsonSchema(categories: Category[], title = 'Tracker'): any {
   const properties: Record<string, any> = {};
   const required: string[] = [];
@@ -84,12 +113,28 @@ export function buildJsonSchema(categories: Category[], title = 'Tracker'): any 
     const fields = enabledFields(cat.fields);
     if (fields.length === 0) continue;
     const key = sanitizeKey(cat.name);
-    properties[key] = {
-      type: 'object',
-      description: cat.name,
-      properties: childrenToProps(fields),
-      required: requiredKeys(fields),
-    };
+
+    if (cat.scope === 'perCharacter') {
+      properties[key] = {
+        type: 'array',
+        description: cat.name + ' (ein Eintrag pro Charakter)',
+        items: {
+          type: 'object',
+          properties: {
+            character: { type: 'string', description: 'Name des Charakters' },
+            ...childrenToPropsPerChar(fields),
+          },
+          required: ['character', ...requiredKeysPerChar(fields)],
+        },
+      };
+    } else {
+      properties[key] = {
+        type: 'object',
+        description: cat.name,
+        properties: childrenToProps(fields),
+        required: requiredKeys(fields),
+      };
+    }
     required.push(key);
   }
 

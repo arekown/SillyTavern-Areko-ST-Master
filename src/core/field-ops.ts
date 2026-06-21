@@ -5,11 +5,20 @@ export function genId(prefix = 'f'): string {
 }
 
 export function newField(): FieldDef {
-  return { id: genId('f'), key: 'feld', label: 'Feld', type: 'string', description: '', required: false, enabled: true };
+  return {
+    id: genId('f'),
+    key: 'feld',
+    label: 'Feld',
+    type: 'string',
+    description: '',
+    required: false,
+    enabled: true,
+    appliesTo: 'all',
+  };
 }
 
 export function newCategory(name = 'Neue Kategorie'): Category {
-  return { id: genId('c'), name, collapsed: false, hidden: false, fields: [] };
+  return { id: genId('c'), name, scope: 'global', collapsed: false, hidden: false, fields: [] };
 }
 
 export function mutateField(fields: FieldDef[], id: string, fn: (f: FieldDef) => void): boolean {

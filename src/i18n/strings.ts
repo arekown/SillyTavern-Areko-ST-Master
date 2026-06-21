@@ -49,12 +49,25 @@ export const STRINGS: Record<string, Entry> = {
   'builder.validation': { de: 'Hinweise', en: 'Issues' },
   'builder.category.hide': { de: 'Ausblenden', en: 'Hide' },
   'builder.category.show': { de: 'Einblenden', en: 'Show' },
+  'builder.scope': { de: 'Geltungsbereich der Kategorie', en: 'Category scope' },
+  'builder.appliesTo': { de: 'Gilt für', en: 'Applies to' },
   'builder.type.string': { de: 'Text', en: 'Text' },
   'builder.type.number': { de: 'Zahl', en: 'Number' },
   'builder.type.boolean': { de: 'Ja/Nein', en: 'Yes/No' },
   'builder.type.list': { de: 'Liste', en: 'List' },
   'builder.type.group': { de: 'Gruppe', en: 'Group' },
   'builder.type.objectList': { de: 'Objekt-Liste', en: 'Object list' },
+
+  'scope.global': { de: 'Global', en: 'Global' },
+  'scope.perCharacter': { de: 'Pro Charakter', en: 'Per character' },
+  'scope.perCharacter.hint': {
+    de: 'Diese Kategorie wird über alle Charaktere geloopt — ein Eintrag pro Charakter.',
+    en: 'This category loops over all characters — one entry per character.',
+  },
+
+  'appliesTo.all': { de: 'Beide', en: 'Both' },
+  'appliesTo.npc': { de: 'Nur NPCs', en: 'NPCs only' },
+  'appliesTo.player': { de: 'Nur Spieler', en: 'Player only' },
 
   'display.text': { de: 'Text', en: 'Text' },
   'display.chip': { de: 'Chip', en: 'Chip' },
@@ -72,9 +85,12 @@ export const STRINGS: Record<string, Entry> = {
   'preset.renamePrompt': { de: 'Name des Profils:', en: 'Profile name:' },
 
   'chars.heading': { de: 'Charaktere', en: 'Characters' },
-  'chars.loop': { de: 'Über alle Charaktere loopen', en: 'Loop over all characters' },
   'chars.exclude': { de: 'Ausgeschlossene Charaktere', en: 'Excluded characters' },
   'chars.excludeHint': { de: 'Namen mit Komma trennen', en: 'Separate names with commas' },
+  'chars.excludeNote': {
+    de: 'Diese Charaktere werden ganz aus Pro-Charakter-Kategorien herausgehalten.',
+    en: 'These characters are kept out of per-character categories entirely.',
+  },
 
   'export2.heading': { de: 'Export & Bild', en: 'Export & Image' },
   'export2.lorebookFields': { de: 'Felder für Lorebook-Export', en: 'Fields for lorebook export' },

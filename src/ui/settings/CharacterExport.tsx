@@ -49,14 +49,6 @@ export const CharacterExport: FC = () => {
   return (
     <div className="areko-charexport">
       <div className="areko-section-title">{t('chars.heading')}</div>
-      <label className="areko-adv-check">
-        <input
-          type="checkbox"
-          checked={preset.characterRules.loopOverCharacters}
-          onChange={(e) => update((s) => { s.presets[s.activePreset].characterRules.loopOverCharacters = e.target.checked; })}
-        />
-        <span>{t('chars.loop')}</span>
-      </label>
       <div className="areko-field">
         <label>{t('chars.exclude')}</label>
         <input
@@ -72,6 +64,7 @@ export const CharacterExport: FC = () => {
             })
           }
         />
+        <span className="areko-hint">{t('chars.excludeNote')}</span>
       </div>
 
       <div className="areko-section-title">{t('export2.heading')}</div>

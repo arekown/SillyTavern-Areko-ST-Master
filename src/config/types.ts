@@ -15,6 +15,9 @@ export type Language = 'de' | 'en';
 export type FieldType = 'string' | 'number' | 'boolean' | 'list' | 'group' | 'objectList';
 export type DisplayStyle = 'text' | 'chip' | 'badge' | 'bar';
 
+export type CategoryScope = 'global' | 'perCharacter';
+export type AppliesTo = 'all' | 'npc' | 'player';
+
 export interface FieldDef {
   id: string;
   key: string;
@@ -23,6 +26,7 @@ export interface FieldDef {
   description?: string;
   required?: boolean;
   enabled?: boolean;
+  appliesTo?: AppliesTo;
   itemType?: FieldType;
   enumValues?: string[];
   example?: string;
@@ -36,6 +40,7 @@ export interface FieldDef {
 export interface Category {
   id: string;
   name: string;
+  scope?: CategoryScope;
   collapsed?: boolean;
   hidden?: boolean;
   fields: FieldDef[];

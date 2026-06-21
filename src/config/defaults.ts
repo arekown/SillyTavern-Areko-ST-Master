@@ -8,6 +8,7 @@ export function makeDefaultPreset(name = 'Default'): Preset {
       {
         id: 'c_scene',
         name: 'Szene',
+        scope: 'global',
         collapsed: false,
         hidden: false,
         fields: [
@@ -19,6 +20,7 @@ export function makeDefaultPreset(name = 'Default'): Preset {
             description: 'Aktuelle Uhrzeit und Datum der Szene',
             required: true,
             enabled: true,
+            appliesTo: 'all',
           },
           {
             id: 'f_location',
@@ -28,6 +30,7 @@ export function makeDefaultPreset(name = 'Default'): Preset {
             description: 'Aktueller Ort der Szene',
             required: true,
             enabled: true,
+            appliesTo: 'all',
           },
         ],
       },

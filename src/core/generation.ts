@@ -8,6 +8,11 @@ interface ChatMsg {
   content: string;
 }
 
+interface InstructionOpts {
+  playerName: string;
+  excluded: string[];
+}
+
 function gatherContext(maxMessages = 6): ChatMsg[] {
   const ctx: any = SillyTavern.getContext();
   const chat = Array.isArray(ctx?.chat) ? ctx.chat : [];
@@ -20,14 +25,20 @@ function gatherContext(maxMessages = 6): ChatMsg[] {
     .filter((m: ChatMsg) => m.content.length > 0);
 }
 
-function buildInstruction(schema: any, language: Language): string {
+function buildInstruction(schema: any, language: Language, opts: InstructionOpts): string {
   const example = schemaToExample(schema, 'json');
   const schemaStr = JSON.stringify(schema, null, 2);
 
   if (language === 'en') {
-    return [
+    const lines = [
       'You maintain a structured tracker for the roleplay above.',
-      'Fill EVERY field based on the latest context. Never leave a field empty.',
+      'Fill EVERY field based on the latest context. Never leave a field empty unless told otherwise.',
+      'Fields defined as an array of objects are PER CHARACTER: add one entry per participating character',
+      `(including the player), using the "character" field as the name. The player character is "${opts.playerName}".`,
+      'Respect the notes in the descriptions about which fields apply only to NPCs or only to the player.',
+    ];
+    if (opts.excluded.length) lines.push(`Do NOT list these characters: ${opts.excluded.join(', ')}.`);
+    lines.push(
       'Output ONLY a single valid JSON object inside a ```json code block. No commentary.',
       'JSON keys stay exactly as in the schema. Write the values in English.',
       '',
@@ -40,12 +51,19 @@ function buildInstruction(schema: any, language: Language): string {
       '```json',
       example,
       '```',
-    ].join('\n');
+    );
+    return lines.join('\n');
   }
 
-  return [
+  const lines = [
     'Du fuehrst einen strukturierten Tracker fuer das obige Rollenspiel.',
-    'Fuelle JEDES Feld basierend auf dem aktuellen Kontext. Lass kein Feld leer.',
+    'Fuelle JEDES Feld basierend auf dem aktuellen Kontext. Lass kein Feld leer, ausser es ist anders angegeben.',
+    'Felder, die als Array von Objekten definiert sind, sind PRO CHARAKTER: lege je einen Eintrag pro beteiligtem',
+    `Charakter an (inklusive Spieler), mit dem Feld "character" als Name. Der Spieler-Charakter ist "${opts.playerName}".`,
+    'Beachte die Hinweise in den Beschreibungen, welche Felder nur fuer NPCs bzw. nur fuer den Spieler gelten.',
+  ];
+  if (opts.excluded.length) lines.push(`Liste folgende Charaktere NICHT auf: ${opts.excluded.join(', ')}.`);
+  lines.push(
     'Gib NUR ein einziges gueltiges JSON-Objekt in einem ```json-Codeblock aus. Kein weiterer Text.',
     'Die JSON-Keys bleiben exakt wie im Schema. Schreibe die Werte auf Deutsch.',
     '',
@@ -58,7 +76,8 @@ function buildInstruction(schema: any, language: Language): string {
     '```json',
     example,
     '```',
-  ].join('\n');
+  );
+  return lines.join('\n');
 }
 
 function extractJson(content: string): any {
@@ -94,7 +113,13 @@ export async function generateTrackerData(): Promise<object> {
     throw new Error('Kein Chat-Kontext vorhanden. Schreib erst ein paar Nachrichten.');
   }
 
-  const messages: ChatMsg[] = [...context, { role: 'user', content: buildInstruction(schema, settings.language) }];
+  const playerName = String(ctx?.name1 || (settings.language === 'en' ? 'the user' : 'der Nutzer'));
+  const excluded = preset.characterRules?.excludedCharacters ?? [];
+
+  const messages: ChatMsg[] = [
+    ...context,
+    { role: 'user', content: buildInstruction(schema, settings.language, { playerName, excluded }) },
+  ];
 
   const res: any = await service.sendRequest(settings.profileId, messages, settings.maxResponseToken);
   const content: string = typeof res === 'string' ? res : res?.content ?? '';

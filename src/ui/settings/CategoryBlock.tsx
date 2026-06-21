@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Category, FieldDef } from '../../config/types';
+import { Category, FieldDef, CategoryScope } from '../../config/types';
 import { FieldRow } from './FieldRow';
 import { t } from '../../i18n';
 
@@ -19,6 +19,8 @@ interface Props {
 
 export const CategoryBlock: FC<Props> = (p) => {
   const c = p.category;
+  const perCharacter = c.scope === 'perCharacter';
+
   return (
     <div className={'areko-cat' + (c.hidden ? ' is-hidden' : '')}>
       <div className="areko-cat__head">
@@ -31,6 +33,16 @@ export const CategoryBlock: FC<Props> = (p) => {
           value={c.name}
           onChange={(e) => p.onUpdateCategory(c.id, (x) => { x.name = e.target.value; })}
         />
+        <select
+          className="text_pole"
+          style={{ flex: '0 0 auto', width: 'auto' }}
+          title={t('builder.scope')}
+          value={c.scope ?? 'global'}
+          onChange={(e) => p.onUpdateCategory(c.id, (x) => { x.scope = e.target.value as CategoryScope; })}
+        >
+          <option value="global">{t('scope.global')}</option>
+          <option value="perCharacter">{t('scope.perCharacter')}</option>
+        </select>
         <i
           className={`fa-solid ${c.hidden ? 'fa-eye-slash' : 'fa-eye'} areko-cat__icon`}
           title={c.hidden ? t('builder.category.show') : t('builder.category.hide')}
@@ -43,12 +55,14 @@ export const CategoryBlock: FC<Props> = (p) => {
 
       {!c.collapsed && (
         <div className="areko-cat__body">
+          {perCharacter && <div className="areko-hint">{t('scope.perCharacter.hint')}</div>}
           {c.fields.length === 0 && <div className="areko-hint">{t('builder.empty')}</div>}
           {c.fields.map((f) => (
             <FieldRow
               key={f.id}
               field={f}
               depth={0}
+              perCharacter={perCharacter}
               categories={p.categories}
               currentCatId={c.id}
               onUpdate={p.onUpdateField}
