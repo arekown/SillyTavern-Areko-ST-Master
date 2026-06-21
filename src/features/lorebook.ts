@@ -100,10 +100,29 @@ function sourceData(name: string): Record<string, any> {
 }
 
 function extractJson(content: string): any {
-  let text = content.trim();
+  let text = String(content ?? '').trim();
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fence) text = fence[1].trim();
-  try { return JSON.parse(text); } catch { return null; }
+  // 1) direkter Versuch
+  try { return JSON.parse(text); } catch { /* weiter */ }
+  // 2) groesstes {...}-Objekt aus dem Text herausschneiden
+  const first = text.indexOf('{');
+  const last = text.lastIndexOf('}');
+  if (first !== -1 && last > first) {
+    const slice = text.slice(first, last + 1);
+    try { return JSON.parse(slice); } catch { /* weiter */ }
+  }
+  return null;
+}
+
+function pickField(obj: any, names: string[]): any {
+  if (!obj || typeof obj !== 'object') return undefined;
+  for (const n of names) {
+    for (const k of Object.keys(obj)) {
+      if (k.toLowerCase() === n) return obj[k];
+    }
+  }
+  return undefined;
 }
 
 export async function generateLorebookEntry(name: string): Promise<void> {
@@ -141,9 +160,29 @@ export async function generateLorebookEntry(name: string): Promise<void> {
   if (!content) throw new Error('Leere Antwort vom Modell.');
 
   const parsed = extractJson(content);
-  const entryText = String(parsed?.content ?? '').trim();
-  let keys: string[] = Array.isArray(parsed?.keys) ? parsed.keys.map((k: any) => String(k).trim()).filter(Boolean) : [];
-  if (!entryText) throw new Error('Antwort enthielt keinen Lorebook-Text.');
+
+  let entryText = '';
+  let rawKeys: any = undefined;
+  if (parsed && typeof parsed === 'object') {
+    entryText = String(pickField(parsed, ['content', 'entry', 'text', 'description', 'body', 'lore']) ?? '').trim();
+    rawKeys = pickField(parsed, ['keys', 'keywords', 'triggers', 'key']);
+  }
+  // Fallback: kein brauchbares JSON -> rohe Textantwort als Inhalt verwenden
+  if (!entryText) {
+    const rawFallback = String(content ?? '').replace(/```[a-z]*\n?|```/gi, '').trim();
+    if (rawFallback.length >= 20) {
+      console.warn('[Areko Tracker] Lorebook: kein JSON-content erkannt, nutze Rohtext. Rohantwort:', content);
+      entryText = rawFallback;
+    }
+  }
+  if (!entryText) {
+    console.error('[Areko Tracker] Lorebook-Rohantwort ohne verwertbaren Text:', content);
+    throw new Error('Antwort enthielt keinen Lorebook-Text. (Rohantwort in der Konsole)');
+  }
+
+  let keys: string[] = Array.isArray(rawKeys)
+    ? rawKeys.map((k: any) => String(k).trim()).filter(Boolean)
+    : (typeof rawKeys === 'string' ? rawKeys.split(',').map((k) => k.trim()).filter(Boolean) : []);
   if (!keys.some((k) => norm(k) === norm(name))) keys.unshift(name);
   keys = Array.from(new Set(keys)).slice(0, 12);
 
