@@ -1,7 +1,6 @@
 import { settingsManager } from './settings-manager';
 import { buildJsonSchema } from './schema-builder';
 import { schemaToExample } from './schema-to-example';
-import { parseResponse } from './parser';
 import { Language } from '../config/types';
 
 interface ChatMsg {
@@ -22,7 +21,7 @@ function gatherContext(maxMessages = 6): ChatMsg[] {
     .filter((m: ChatMsg) => m.content.length > 0);
 }
 
-// Bau die Anweisung (Schema + Beispiel + Sprachregel) als letzten User-Turn.
+// Anweisung (Schema + Beispiel + Sprachregel) als letzten User-Turn.
 function buildInstruction(schema: any, language: Language): string {
   const example = schemaToExample(schema, 'json');
   const schemaStr = JSON.stringify(schema, null, 2);
@@ -64,6 +63,14 @@ function buildInstruction(schema: any, language: Language): string {
   ].join('\n');
 }
 
+// Extrahiert das JSON aus der Modell-Antwort (mit oder ohne Codeblock).
+function extractJson(content: string): any {
+  let text = content.trim();
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) text = fence[1].trim();
+  return JSON.parse(text);
+}
+
 // Kern: generiert einen Tracker und gibt das geparste JSON zurueck.
 // Beruehrt NICHTS am DOM — reine Pipeline (Profil -> Modell -> Parsen).
 export async function generateTrackerData(): Promise<object> {
@@ -85,7 +92,9 @@ export async function generateTrackerData(): Promise<object> {
   const schema = buildJsonSchema(preset.fields, preset.name || 'Tracker');
 
   const context = gatherContext(6);
-  if (context.length === 0) throw new Error('Kein Chat-Kontext vorhanden. Schreib erst ein paar Nachrichten.');
+  if (context.length === 0) {
+    throw new Error('Kein Chat-Kontext vorhanden. Schreib erst ein paar Nachrichten.');
+  }
 
   const messages: ChatMsg[] = [
     ...context,
@@ -96,8 +105,13 @@ export async function generateTrackerData(): Promise<object> {
   const content: string = typeof res === 'string' ? res : res?.content ?? '';
   if (!content) throw new Error('Leere Antwort vom Modell erhalten.');
 
-  const parsed = parseResponse(content, 'json', schema);
-  if (!parsed || Object.keys(parsed).length === 0) {
+  let parsed: any;
+  try {
+    parsed = extractJson(content);
+  } catch {
+    throw new Error('Antwort liess sich nicht als JSON parsen.');
+  }
+  if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
     throw new Error('Antwort liess sich nicht als JSON parsen.');
   }
   return parsed;
