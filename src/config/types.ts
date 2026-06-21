@@ -1,5 +1,4 @@
 export enum AutoMode { OFF = 'off', INPUTS = 'inputs', RESPONSES = 'responses', BOTH = 'both' }
-export enum Timing { BEFORE = 'before', AFTER = 'after' }
 export type Language = 'de' | 'en';
 export type FieldType = 'string' | 'number' | 'boolean' | 'list' | 'group' | 'objectList';
 export type DisplayStyle = 'text' | 'chip' | 'badge' | 'bar';
@@ -22,7 +21,6 @@ export interface ExtensionSettings {
   version: string;
   profileId: string;
   autoMode: AutoMode;
-  timing: Timing;
   language: Language;
   maxResponseToken: number;
   includeLastXMessages: number;

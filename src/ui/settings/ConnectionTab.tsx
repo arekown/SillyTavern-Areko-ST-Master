@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { settingsManager } from '../../core/settings-manager';
-import { AutoMode, Timing, Language, ExtensionSettings } from '../../config/types';
+import { AutoMode, Language, ExtensionSettings } from '../../config/types';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { notifyUpdated } from '../../core/tracker-store';
 import { t } from '../../i18n';
@@ -33,8 +33,6 @@ export const ConnectionTab: FC = () => {
     notifyUpdated();
   };
 
-  const autoOff = settings.autoMode === AutoMode.OFF;
-
   return (
     <div className="areko-tab">
       <div className="areko-field">
@@ -61,18 +59,6 @@ export const ConnectionTab: FC = () => {
           <option value={AutoMode.BOTH}>{t('connection.autoMode.both')}</option>
         </select>
       </div>
-
-      <div className="areko-field">
-        <label>
-          {t('connection.timing')}
-          {autoOff && <span className="areko-hint">{t('connection.timing.hint')}</span>}
-        </label>
-        <select className="text_pole" value={settings.timing} disabled={autoOff} onChange={(e) => update((s) => { s.timing = e.target.value as Timing; })}>
-          <option value={Timing.BEFORE}>{t('connection.timing.before')}</option>
-          <option value={Timing.AFTER}>{t('connection.timing.after')}</option>
-        </select>
-      </div>
-
       <div className="areko-field">
         <label>{t('connection.language')}</label>
         <select className="text_pole" value={settings.language} onChange={(e) => update((s) => { s.language = e.target.value as Language; })}>

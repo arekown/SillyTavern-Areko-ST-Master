@@ -1,17 +1,13 @@
 import { settingsManager } from './settings-manager';
-import { Timing } from '../config/types';
 import { EXTENSION_KEY, TRACKER_VALUE_KEY } from '../config/constants';
 
-// Laeuft VOR der normalen Generierung. Erzeugt NICHTS — haengt nur die letzten X
-// Tracker als JSON-Block in den ausgehenden Chat, jeweils direkt nach ihrer
-// Quell-Nachricht (wie WTracker). Nur bei Timing = "Vor der Antwort".
+// Laeuft VOR der normalen Generierung. Haengt die letzten X Tracker als JSON-Block
+// in den ausgehenden Chat (jeweils nach ihrer Quell-Nachricht, wie WTracker),
+// damit die KI den aktuellen Stand mitbekommt.
 export function trackerInterceptor(chat: any[]): void {
   if (!Array.isArray(chat)) return;
-  let s: any;
-  try { s = settingsManager.getSettings(); } catch { return; }
-  if (s.timing !== Timing.BEFORE) return;
-
-  const count = s.includeLastXTrackers ?? 1;
+  let count = 1;
+  try { count = settingsManager.getSettings().includeLastXTrackers ?? 1; } catch { count = 1; }
   if (count <= 0) return;
 
   const idxs: number[] = [];
