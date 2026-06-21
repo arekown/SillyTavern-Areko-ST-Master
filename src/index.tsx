@@ -22,6 +22,7 @@ function migrate(): void {
   if (!s.promptJson) s.promptJson = DEFAULT_JSON_PROMPT;
   if (!s.imagePrompt) s.imagePrompt = DEFAULT_IMAGE_PROMPT;
   if (!s.activePreset || !s.presets[s.activePreset]) s.activePreset = 'default_de';
+  s.lorebookPrompt = DEFAULT_LOREBOOK_PROMPT;
   s.version = VERSION;
   settingsManager.saveSettings();
 }

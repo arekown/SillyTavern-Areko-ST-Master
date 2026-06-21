@@ -85,18 +85,27 @@ function findCharEntry(name: string): { cat: Category; entry: any } | null {
 }
 
 function sourceData(name: string): Record<string, any> {
-  const s = settingsManager.getSettings();
+  // Immer den KOMPLETTEN Charakter-Tracker mitschicken.
   const found = findCharEntry(name);
   if (!found) return {};
+  const out: Record<string, any> = {};
+  for (const f of found.cat.fields) out[f.label] = found.entry?.[f.key];
+  return out;
+}
+
+// Optionale Betonung: das im Layout zugewiesene Feld/die Gruppe gesondert hervorheben.
+function emphasisNote(name: string): string {
+  const s = settingsManager.getSettings();
   const id = s.lorebookExport.sourceFieldId;
-  if (!id) {
-    const out: Record<string, any> = {};
-    for (const f of found.cat.fields) out[f.label] = found.entry?.[f.key];
-    return out;
-  }
+  if (!id) return '';
+  const found = findCharEntry(name);
+  if (!found) return '';
   const path = findPath(found.cat.fields, id, []);
-  if (!path) return {};
-  return { [labelOf(found.cat.fields, id)]: readPath(found.entry, path) };
+  if (!path) return '';
+  const val = readPath(found.entry, path);
+  if (val == null || val === '') return '';
+  const txt = typeof val === 'string' ? val : JSON.stringify(val);
+  return 'When writing, give special weight to this field: ' + labelOf(found.cat.fields, id) + ' = ' + txt;
 }
 
 function extractJson(content: string): any {
@@ -145,6 +154,9 @@ export async function generateLorebookEntry(name: string): Promise<void> {
   const dataBlock = 'Structured data for "' + name + '" (player is "' + getPlayerName() + '"):\n```json\n' +
     JSON.stringify(sourceData(name), null, 2) + '\n```';
   context.push({ role: 'user', content: dataBlock });
+
+  const emph = emphasisNote(name);
+  if (emph) context.push({ role: 'user', content: emph });
 
   if (existing) {
     const keysStr = Array.isArray(existing.key) ? existing.key.join(', ') : '';

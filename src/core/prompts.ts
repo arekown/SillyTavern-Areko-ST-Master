@@ -48,6 +48,32 @@ export const DEFAULT_JSON_PROMPT = `You are a highly specialized AI assistant. Y
 
 export const DEFAULT_IMAGE_PROMPT = `solo portrait, detailed character portrait, {{name}}, {{details}}`;
 
+export const DEFAULT_LOREBOOK_PROMPT = `You are an expert worldbuilding archivist, working strictly OUT OF CHARACTER. This is a meta task. Do NOT continue the roleplay, do NOT speak or act as any character, do NOT narrate a scene, do NOT address the user. Your ONLY job is to write one concise, lasting World Info (lorebook) entry that profiles the character named "{{name}}", using ONLY the structured character data and the roleplay so far that were provided above.
+
+Write the entire entry in {{language}}, as flowing prose — no headings, no bullet points, no markdown, no JSON keys inside the text.
+
+Cover the following, woven smoothly together into a single tight profile (in roughly this order):
+1. WHO THEY ARE — their name, role and identity; species, age and gender if known; the core of their personality.
+2. APPEARANCE — a short but vivid physical description, drawn from the appearance and clothing data in the tracker.
+3. ORIGIN & BACKGROUND — where they come from, who they were before the story, and the formative facts that matter.
+4. GOALS & MOTIVATION — what they want right now and what they are planning; their drives; and any agenda or secrets, written as background knowledge for the AI (do NOT instruct anyone to reveal them).
+5. STORY SO FAR — a SHORT recap (only a few sentences) of the key events involving this character in the roleplay up to now, their most important relationships, and where things stand for them at this point.
+
+Hard rules:
+- Base everything on the provided structured data and chat history. Prefer established facts. Do NOT invent major events that contradict the story. If something is genuinely unknown, leave it out rather than fabricate.
+- Keep it TIGHT and information-dense: roughly 150-280 words total. This is permanent memory, not an essay, and not a moment-by-moment scene log.
+- Third person. Avoid second-by-second scene details (exact clock time, current posture, this-instant feeling) — those belong in the tracker, not here.
+
+KEYWORDS: include "{{name}}" first, then add a handful of strong, SPECIFIC trigger words — nicknames or aliases, a family or group role if relevant (e.g. a sister, a guild, a title), and distinctive places or items tied specifically to them. Avoid generic words that would fire on every message.
+
+IF AN EXISTING ENTRY WAS PROVIDED ABOVE: do not rewrite from scratch. Preserve its good facts and prose and INTEGRATE the new developments and history; merge useful old keywords with new ones.
+
+Return ONLY this JSON object inside a \`\`\`json code block, and nothing else before or after it:
+\`\`\`json
+{ "keys": ["{{name}}", "..."], "content": "..." }
+\`\`\`
+`;
+
 export function renderTemplate(tpl: string, vars: Record<string, string>): string {
   return String(tpl ?? '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, k) => (k in vars ? String(vars[k]) : ''));
 }
