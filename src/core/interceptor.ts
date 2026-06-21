@@ -1,11 +1,20 @@
 import { settingsManager } from './settings-manager';
+import { Timing } from '../config/types';
 import { EXTENSION_KEY, TRACKER_VALUE_KEY } from '../config/constants';
 
-// Haengt die letzten X Tracker als JSON-Block in den ausgehenden Chat (vor der Antwort).
+// Haengt die letzten X Tracker als JSON-Block in den ausgehenden Chat —
+// NUR wenn Timing = "Vor der Antwort". Sonst bekommt das LLM den Tracker nicht mit.
 export function injectLatestTracker(chat: any[]): void {
   if (!Array.isArray(chat)) return;
   let count = 1;
-  try { count = settingsManager.getSettings().includeLastXTrackers ?? 1; } catch { count = 1; }
+  let timing: Timing = Timing.AFTER;
+  try {
+    const s = settingsManager.getSettings();
+    count = s.includeLastXTrackers ?? 1;
+    timing = s.timing;
+  } catch { /* defaults */ }
+
+  if (timing !== Timing.BEFORE) return;
   if (count <= 0) return;
 
   const idxs: number[] = [];

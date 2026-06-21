@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { GeneralTab } from './settings/GeneralTab';
 import { SchemaBuilder } from './settings/SchemaBuilder';
@@ -12,9 +12,20 @@ type Tab = 'general' | 'layout' | 'prompts';
 
 const SettingsWindow: FC<{ onClose: () => void }> = ({ onClose }) => {
   const [tab, setTab] = useState<Tab>('general');
+  const [, setTick] = useState(0);
+
+  // Bei jeder Aenderung (z. B. Profilwechsel) das ganze Fenster neu rendern,
+  // damit Labels sofort umschalten.
+  useEffect(() => {
+    const h = () => setTick((x) => x + 1);
+    window.addEventListener('areko:updated', h);
+    return () => window.removeEventListener('areko:updated', h);
+  }, []);
+
   const TabBtn: FC<{ k: Tab; label: string }> = ({ k, label }) => (
     <div className={'areko-wtab' + (tab === k ? ' is-active' : '')} onClick={() => setTab(k)}>{label}</div>
   );
+
   return (
     <div className="areko-overlay" onClick={onClose}>
       <div className="areko-window" onClick={(e) => e.stopPropagation()}>

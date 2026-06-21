@@ -1,4 +1,5 @@
 import { FC, useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { settingsManager } from '../../core/settings-manager';
 import { getLatestTracker, getPlayerName } from '../../core/tracker-store';
 import { renderGeneral, renderCharacters } from '../../core/render-html';
@@ -110,7 +111,10 @@ export const Panel: FC = () => {
         </div>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFile} />
       </div>
-      {lightbox && (<div className="areko-lightbox" onClick={() => setLightbox(null)}><img src={lightbox} alt="" /></div>)}
+      {lightbox && createPortal(
+        <div className="areko-lightbox" onClick={() => setLightbox(null)}><img src={lightbox} alt="" /></div>,
+        document.body,
+      )}
     </div>
   );
 };

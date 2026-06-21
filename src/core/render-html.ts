@@ -56,13 +56,19 @@ function renderField(field: FieldDef, value: any): string {
 export function renderFields(fields: FieldDef[], data: any): string {
   return (fields || []).map((f) => renderField(f, data?.[f.key])).filter(Boolean).join('');
 }
+
+// Buttons links in zwei Reihen (1: Generieren+Hochladen, 2: Löschen).
 function actionButtons(name: string): string {
   const n = esc(name);
   return `<div class="areko-charactions">` +
-    `<span class="areko-iconbtn" data-areko-action="genimg" data-areko-name="${n}" title="${esc(t('panel.img.gen'))}"><i class="fa-solid fa-wand-magic-sparkles"></i></span>` +
-    `<span class="areko-iconbtn" data-areko-action="upload" data-areko-name="${n}" title="${esc(t('panel.img.upload'))}"><i class="fa-solid fa-upload"></i></span>` +
-    `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
-    `</div>`;
+    `<div class="areko-charactions__row">` +
+      `<span class="areko-iconbtn" data-areko-action="genimg" data-areko-name="${n}" title="${esc(t('panel.img.gen'))}"><i class="fa-solid fa-wand-magic-sparkles"></i></span>` +
+      `<span class="areko-iconbtn" data-areko-action="upload" data-areko-name="${n}" title="${esc(t('panel.img.upload'))}"><i class="fa-solid fa-upload"></i></span>` +
+    `</div>` +
+    `<div class="areko-charactions__row">` +
+      `<span class="areko-iconbtn" data-areko-action="delimg" data-areko-name="${n}" title="${esc(t('panel.img.delete'))}"><i class="fa-solid fa-trash"></i></span>` +
+    `</div>` +
+  `</div>`;
 }
 function characterCard(fields: FieldDef[], entry: any, opts: CardOpts): string {
   const name = entry?.character ?? entry?.name ?? '?';
@@ -71,7 +77,7 @@ function characterCard(fields: FieldDef[], entry: any, opts: CardOpts): string {
   if (opts.panelActions) {
     const url = opts.imageOf ? opts.imageOf(name) : undefined;
     const img = url ? `<img class="areko-charimg" src="${esc(url)}" alt="${esc(name)}">` : `<div class="areko-charimg areko-charimg--empty">${esc(t('panel.img.none'))}</div>`;
-    head = `<div class="areko-charimg-wrap">${img}${actionButtons(name)}</div>`;
+    head = `<div class="areko-charimg-wrap">${actionButtons(name)}${img}</div>`;
   }
   const key = 'char:' + name;
   return `<details class="areko-charcard" data-areko-key="${esc(key)}"${opts.open ? ' open' : ''}><summary class="areko-charcard__name">${esc(name)}</summary>${head}${inner || '<div class="areko-empty">—</div>'}</details>`;

@@ -114,7 +114,7 @@ export const STRINGS: Record<string, Entry> = {
   'chat.generating': { de: 'Generiere…', en: 'Generating…' },
   'chat.delete': { de: 'Tracker löschen', en: 'Delete tracker' },
 
-  'panel.title': { de: 'Tracker-Panel', en: 'Tracker Panel' },
+  'panel.title': { de: 'Areko-ST-Master', en: 'Areko-ST-Master' },
   'panel.toggle': { de: 'Panel ein-/ausblenden', en: 'Toggle panel' },
   'panel.noData': { de: 'Noch kein Tracker. Generiere einen unter einer Nachricht.', en: 'No tracker yet. Generate one under a message.' },
   'panel.tab.general': { de: 'Allgemein', en: 'General' },
