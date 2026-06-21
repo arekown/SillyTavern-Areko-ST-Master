@@ -5,6 +5,7 @@ import { generateForMessage } from '../core/generation';
 import { t } from '../i18n';
 
 const busy = new Set<number>();
+const openState = new Map<number, boolean>();
 
 function activeCategories() {
   const s = settingsManager.getSettings();
@@ -26,8 +27,9 @@ function buildBlockHtml(messageId: number): string {
     (hasData ? `<span class="areko-trk__btn areko-trk__del" title="${t('chat.delete')}"><i class="fa-solid fa-trash"></i></span>` : '') +
     `</div>`;
 
+  const isOpen = openState.get(messageId) ?? false;
   const body = hasData
-    ? `<details class="areko-trk__details"><summary>${t('chat.tracker')}</summary><div class="areko-trk__body">${inner}</div></details>`
+    ? `<details class="areko-trk__details"${isOpen ? ' open' : ''}><summary>${t('chat.tracker')}</summary><div class="areko-trk__body">${inner}</div></details>`
     : '';
 
   return controls + body;
@@ -37,6 +39,8 @@ function attachTo(mes: HTMLElement): void {
   const idAttr = mes.getAttribute('mesid');
   if (idAttr === null) return;
   const messageId = Number(idAttr);
+
+  // Anker: VOR dem Nachrichtentext (oben), wie WTracker.
   const text = mes.querySelector('.mes_text');
   if (!text) return;
 
@@ -50,23 +54,29 @@ function attachTo(mes: HTMLElement): void {
   if (!block) {
     block = document.createElement('div');
     block.className = 'areko-trk';
-    text.insertAdjacentElement('afterend', block);
+    text.insertAdjacentElement('beforebegin', block);
   }
 
-  const wasOpen = block.querySelector('details.areko-trk__details')?.hasAttribute('open') ?? false;
   block.dataset.sig = sig;
   block.innerHTML = buildBlockHtml(messageId);
-  const det = block.querySelector('details.areko-trk__details') as HTMLDetailsElement | null;
-  if (det && wasOpen) det.open = true;
 
-  block.querySelector('.areko-trk__gen')?.addEventListener('click', async () => {
+  const det = block.querySelector('details.areko-trk__details') as HTMLDetailsElement | null;
+  if (det) {
+    det.addEventListener('toggle', () => openState.set(messageId, det.open));
+    // Klick aufs Summary nicht an ST weiterreichen.
+    det.querySelector('summary')?.addEventListener('click', (e) => e.stopPropagation());
+  }
+
+  const genBtn = block.querySelector('.areko-trk__gen');
+  genBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
     if (busy.has(messageId)) return;
     busy.add(messageId);
     rebuild(mes);
     try {
       await generateForMessage(messageId);
-    } catch (e: any) {
-      window.alert('Tracker-Fehler: ' + (e?.message ?? String(e)));
+    } catch (err: any) {
+      window.alert('Tracker-Fehler: ' + (err?.message ?? String(err)));
     } finally {
       busy.delete(messageId);
       rebuild(mes);
@@ -74,8 +84,10 @@ function attachTo(mes: HTMLElement): void {
     }
   });
 
-  block.querySelector('.areko-trk__del')?.addEventListener('click', () => {
+  block.querySelector('.areko-trk__del')?.addEventListener('click', (e) => {
+    e.stopPropagation();
     clearTrackerFor(messageId);
+    openState.delete(messageId);
     rebuild(mes);
     notifyUpdated();
   });
