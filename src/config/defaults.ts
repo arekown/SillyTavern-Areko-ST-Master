@@ -1,6 +1,6 @@
-import { ExtensionSettings, AutoMode, Timing, Preset, FieldDef, Language } from './types';
+import { ExtensionSettings, AutoMode, Preset, FieldDef, Language } from './types';
 import { VERSION } from './constants';
-import { DEFAULT_TRACKER_PROMPT, DEFAULT_JSON_PROMPT, DEFAULT_IMAGE_PROMPT } from '../core/prompts';
+import { DEFAULT_TRACKER_PROMPT, DEFAULT_JSON_PROMPT, DEFAULT_IMAGE_PROMPT, DEFAULT_LOREBOOK_PROMPT } from '../core/prompts';
 
 const str = (id: string, key: string, label: string, description: string, opts: Partial<FieldDef> = {}): FieldDef =>
   ({ id, key, label, type: 'string', description, required: true, ...opts });
@@ -88,7 +88,6 @@ export const defaultSettings: ExtensionSettings = {
   version: VERSION,
   profileId: '',
   autoMode: AutoMode.OFF,
-  timing: Timing.AFTER,
   language: 'de',
   maxResponseToken: 16000,
   includeLastXMessages: 0,
@@ -101,5 +100,6 @@ export const defaultSettings: ExtensionSettings = {
   prompt: DEFAULT_TRACKER_PROMPT,
   promptJson: DEFAULT_JSON_PROMPT,
   imagePrompt: DEFAULT_IMAGE_PROMPT,
+  lorebookPrompt: DEFAULT_LOREBOOK_PROMPT,
   panelOpen: false,
 };
